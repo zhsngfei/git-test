@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>未至 - 旅行前的文化触点</title>
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="device-stage">
+      <div class="device-label">
+        <span>未至 · iPhone 16 preview</span>
+        <small>390 × 844</small>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-speaker" aria-hidden="true"></div>
+        <div class="app-shell">
+      <aside class="sidebar" aria-label="主导航">
+        <div class="brand-mark">
+          <span>未至</span>
+          <small>before arrival</small>
+        </div>
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="explore" aria-label="探索">
+            <span class="nav-icon">⌕</span>
+            探索
+          </button>
+          <button class="nav-item" data-view="favorites" aria-label="收藏">
+            <span class="nav-icon">♡</span>
+            收藏
+          </button>
+          <button class="nav-item" data-view="profile" aria-label="我的">
+            <span class="nav-icon">◎</span>
+            我的
+          </button>
+        </nav>
+        <div class="sidebar-note">
+          <span>今日触点</span>
+          <strong>东京 · 夜行与书页</strong>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <section class="view active" id="explore-view" aria-labelledby="explore-title">
+          <header class="explore-hero">
+            <div class="hero-copy">
+              <p class="eyebrow">TRIPPIN THROUGH STORIES</p>
+              <h1 id="explore-title">出发前，先进入一座城市的故事。</h1>
+              <p>
+                输入目的地，未至会把相关书籍、影视作品和场景触点放到你眼前。
+                到了现场，你看到的不只是风景。
+              </p>
+            </div>
+            <form class="search-card" id="search-form">
+              <label for="city-input">目的地城市</label>
+              <div class="search-row">
+                <input id="city-input" type="text" value="东京" autocomplete="off" />
+                <button type="submit">探索</button>
+              </div>
+              <div class="preference-grid" aria-label="阅读和观影偏好">
+                <button type="button" class="chip selected">文学</button>
+                <button type="button" class="chip selected">电影</button>
+                <button type="button" class="chip">剧集</button>
+                <button type="button" class="chip">经典</button>
+                <button type="button" class="chip">治愈</button>
+                <button type="button" class="chip">人文</button>
+              </div>
+            </form>
+          </header>
+
+          <section class="city-strip" aria-label="推荐城市">
+            <div class="section-heading">
+              <span>城市灵感</span>
+              <button class="text-button" type="button">换一批</button>
+            </div>
+            <div class="city-grid">
+              <button class="city-tile active" data-city="东京">
+                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=900&q=80" alt="东京城市街景" />
+                <span>东京</span>
+              </button>
+              <button class="city-tile" data-city="京都">
+                <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=900&q=80" alt="京都街道" />
+                <span>京都</span>
+              </button>
+              <button class="city-tile" data-city="巴黎">
+                <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=900&q=80" alt="巴黎城市景观" />
+                <span>巴黎</span>
+              </button>
+              <button class="city-tile" data-city="香港">
+                <img src="https://images.unsplash.com/photo-1536599018102-9f803c140fc1?auto=format&fit=crop&w=900&q=80" alt="香港夜景" />
+                <span>香港</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="results-header" id="results">
+            <div>
+              <p class="eyebrow">TOKYO TOUCHPOINTS</p>
+              <h2>东京的 8 个文化触点</h2>
+            </div>
+            <div class="filter-pills" aria-label="结果筛选">
+              <button class="pill active" data-filter="all">全部</button>
+              <button class="pill" data-filter="book">书</button>
+              <button class="pill" data-filter="film">电影</button>
+              <button class="pill" data-filter="series">剧集</button>
+            </div>
+          </section>
+
+          <section class="work-grid" id="work-grid" aria-label="作品推荐"></section>
+
+          <section class="theme-row" aria-label="主题探索">
+            <article>
+              <span>文学感城市</span>
+              <strong>适合带一本书慢慢走</strong>
+            </article>
+            <article>
+              <span>电影爱好者</span>
+              <strong>把取景地变成地图记忆</strong>
+            </article>
+            <article>
+              <span>一个人出发</span>
+              <strong>安静、轻盈、有回声</strong>
+            </article>
+          </section>
+        </section>
+
+        <section class="view" id="detail-view" aria-labelledby="detail-title">
+          <button class="back-button" type="button" data-back>← 回到探索</button>
+          <div id="detail-content"></div>
+        </section>
+
+        <section class="view" id="favorites-view" aria-labelledby="favorites-title">
+          <header class="simple-header">
+            <p class="eyebrow">SAVED BEFORE DEPARTURE</p>
+            <h1 id="favorites-title">收藏</h1>
+            <p>这里保留你想在出发前读完、看完，或到了现场想再想起的作品。</p>
+          </header>
+          <div class="filter-pills favorites-filters">
+            <button class="pill active" data-fav-filter="all">全部</button>
+            <button class="pill" data-fav-filter="book">书</button>
+            <button class="pill" data-fav-filter="film">电影</button>
+            <button class="pill" data-fav-filter="series">剧集</button>
+          </div>
+          <section class="work-grid compact" id="favorites-grid"></section>
+          <div class="empty-state hidden" id="favorites-empty">
+            <span>♡</span>
+            <h2>还没有收藏</h2>
+            <p>先去探索一座城市，把打动你的作品留下来。</p>
+          </div>
+        </section>
+
+        <section class="view" id="profile-view" aria-labelledby="profile-title">
+          <header class="profile-card">
+            <div class="avatar">未</div>
+            <div>
+              <p class="eyebrow">MY PRE-TRIP NOTES</p>
+              <h1 id="profile-title">我的未至</h1>
+              <p>最近在准备：东京。你已经保存了一些书页和银幕里的线索。</p>
+            </div>
+          </header>
+          <section class="stats-grid">
+            <article>
+              <span id="stat-fav">0</span>
+              <p>已收藏</p>
+            </article>
+            <article>
+              <span id="stat-want">0</span>
+              <p>想读 / 想看</p>
+            </article>
+            <article>
+              <span>东京</span>
+              <p>最近搜索</p>
+            </article>
+          </section>
+          <section class="recent-panel">
+            <div class="section-heading">
+              <span>最近浏览</span>
+            </div>
+            <div id="recent-list" class="recent-list"></div>
+          </section>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="移动端主导航">
+        <button class="nav-item active" data-view="explore">⌕<span>探索</span></button>
+        <button class="nav-item" data-view="favorites">♡<span>收藏</span></button>
+        <button class="nav-item" data-view="profile">◎<span>我的</span></button>
+      </nav>
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
