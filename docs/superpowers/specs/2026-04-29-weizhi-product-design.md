@@ -1,491 +1,493 @@
-# Weizhi Product Design
+# 未至产品设计说明
 
-## Purpose
+## 目标
 
-Weizhi is a mobile-first travel-before-arrival culture app. It helps users enter a city before they physically arrive by giving them a curated city notebook of books, films, and cultural place touchpoints.
+未至是一款移动优先的旅行前文化准备应用。它帮助用户在真正抵达一座城市之前，先通过书籍、电影和文化地点触点，进入这座城市的气质、节奏和故事。
 
-This first version is a real launchable product, not a static prototype or internal demo.
+第一版是一个可真实上线使用的产品，不是静态原型，也不是内部演示。
 
-The product promise is:
+产品承诺：
 
-> Before arriving in a city, users can understand part of its mood, rhythm, and stories through a small set of real works and places.
+> 在抵达一座城市之前，用户可以通过少量真实作品和地点，提前理解这座城市的一部分情绪、节奏和故事。
 
-## Product Positioning
+## 产品定位
 
-Weizhi is not a conventional travel guide, route planner, content feed, or generic AI chat tool.
+未至不是传统旅游攻略、路线规划工具、内容信息流，也不是通用 AI 问答工具。
 
-It is a city culture preparation app:
+它是一款城市文化准备应用：
 
-- Users search for a city they will visit or want to understand.
-- Users optionally choose content types and theme-tone tags.
-- The app returns a city notebook made from real source-backed content.
-- AI helps rank, group, and explain the recommendations.
-- AI does not invent works, places, or facts.
+- 用户搜索即将前往或想了解的城市。
+- 用户可以选择内容类型和主题气质标签。
+- 应用返回一份由真实资料支撑的城市笔记。
+- AI 负责排序、分组和解释推荐理由。
+- AI 不编造作品、地点或事实。
 
-## First-Version Strategy
+## 第一版策略
 
-The first version uses a curated-city strategy while preserving the product structure needed for future arbitrary-city support.
+第一版采用精选城市策略，同时保留未来支持任意城市的产品结构。
 
-The app formally supports a selected East Asian city pool:
+第一版正式支持东亚文艺城市池：
 
-- Tokyo
-- Kyoto
-- Taipei
-- Hong Kong
-- Shanghai
-- Beijing
-- Kamakura
-- Nara
-- Seoul
-- Hangzhou
+- 东京
+- 京都
+- 台北
+- 香港
+- 上海
+- 北京
+- 镰仓
+- 奈良
+- 首尔
+- 杭州
 
-Cities may have different content depth:
+不同城市可以有不同内容深度：
 
-- Core cities have deeper coverage, richer work-place relationships, and more polished AI-reviewed recommendation groups.
-- Expansion cities have lighter coverage, but must still have enough real content to avoid empty or generic recommendations.
+- 核心城市内容更深，作品与地点关系更完整，AI 审核后的推荐分组更精致。
+- 扩展城市内容可以更轻，但必须有足够真实内容，不能展示空泛或硬凑的推荐。
 
-Users can search for unsupported cities, but unsupported results show a refined "content is still being prepared" state instead of low-quality generated content.
+用户可以搜索暂未支持的城市，但结果页应展示精致的“内容仍在整理中”状态，而不是生成低质量内容。
 
-## Platform
+## 平台形态
 
-The first version is a mobile-first Web App / PWA.
+第一版是移动优先的 Web App / PWA。
 
-It must be deployable and usable by real users:
+它必须可以部署上线并被真实用户使用：
 
-- Real database-backed content.
-- Real login.
-- Persistent user collections.
-- Real content import workflow.
-- AI-supported recommendation flow with fallback states.
-- Production-minded loading, empty, and error states.
+- 真实数据库内容。
+- 真实登录系统。
+- 持久化用户收藏。
+- 真实内容导入流程。
+- 带兜底状态的 AI 推荐流程。
+- 面向生产环境的加载、空状态和错误状态。
 
-The specific technical stack will be decided later. The product design assumes the system can support authentication, database storage, AI calls, caching, CSV/Excel content import, and deployment.
+具体技术栈后续再决定。本产品设计假设系统需要支持登录、数据库存储、AI 调用、缓存、CSV/Excel 内容导入和部署上线。
 
-## Content Scope
+## 内容范围
 
-First-version content types:
+第一版正式支持的内容类型：
 
-- Books
-- Films
+- 书籍
+- 电影
 
-Reserved content type:
+预留内容类型：
 
-- Series
+- 剧集
 
-The data model should reserve the `series` type, but first-version UI does not need to promote series as a primary filter.
+数据模型需要预留 `series` 类型，但第一版 UI 不需要把剧集作为主要筛选入口。
 
-## Theme-Tone Tags
+## 主题气质标签
 
-The product uses "theme-tone tags" instead of generic mood labels.
+产品使用“主题气质标签”，而不是泛泛的情绪标签。
 
-Theme-tone tags represent the way a user wants to enter a city before travel. They combine emotional tone and cultural angle.
+主题气质标签表示用户希望用什么方式在旅行前进入一座城市。它同时包含情绪方向和文化观看角度。
 
-Example tags:
+示例标签：
 
-- Quiet
-- Nostalgic
-- Solitary
-- Youthful
-- Suspenseful
-- Humanistic
-- Classic
-- City wandering
-- Filmic
-- Literary
+- 安静
+- 怀旧
+- 孤独
+- 青春
+- 悬疑
+- 人文
+- 经典
+- 城市漫游
+- 电影感
+- 文学感
 
-These tags are used for:
+这些标签用于：
 
-- Homepage lightweight discovery.
-- Search preference input.
-- City result filtering.
-- AI ranking and grouping.
-- Recommendation group titles.
+- 首页轻量发现。
+- 搜索偏好输入。
+- 城市结果筛选。
+- AI 排序和分组。
+- 推荐分组标题。
 
-Example city result groups:
+城市结果页分组示例：
 
-- Quietly entering Kyoto
-- Tokyo's solitude and night
-- Taipei's youth and rain
-- Hong Kong streets in film
-- Works for the night before departure
+- 安静地进入京都
+- 东京的孤独与夜晚
+- 台北的青春与雨
+- 香港电影里的街道
+- 出发前一晚适合看的作品
 
-Users may search without selecting tags. The default result is the city's representative recommendation set.
+用户可以不选择标签直接搜索。未选择时，默认展示城市代表性推荐。
 
-## Core User Flow
+## 核心用户流程
 
-1. The user opens the homepage and sees brand, city search, lightweight theme-tone tags, and a featured city or theme visual.
-2. The user enters a city or opens a featured city/theme.
-3. If the city is supported, the app opens the city result page.
-4. If the city is unsupported or underfilled, the app shows a refined preparation state.
-5. The user browses book and film recommendations grouped by theme-tone.
-6. The user opens a work detail page to understand why the work is worth reading or watching before travel.
-7. The user opens related place touchpoints from the work detail page.
-8. The user can collect works or places.
-9. If the user is not logged in, collecting opens an email magic-link login prompt.
-10. After login succeeds, the original collection action completes.
-11. The user opens the collection page to view a city-organized pre-departure notebook.
+1. 用户打开首页，看到品牌、城市搜索、轻量主题气质标签和精选城市或主题视觉。
+2. 用户输入城市，或点击精选城市/主题入口。
+3. 如果城市已支持，进入城市结果页。
+4. 如果城市暂未支持或内容不足，展示精致的资料整理中状态。
+5. 用户浏览按主题气质分组的书籍和电影推荐。
+6. 用户打开作品详情页，理解这部作品为什么适合旅行前读/看。
+7. 用户从作品详情页打开相关地点触点。
+8. 用户可以收藏作品或地点。
+9. 如果用户未登录，点击收藏时弹出邮箱 magic link 登录提示。
+10. 登录成功后，自动完成刚才的收藏动作。
+11. 用户进入收藏页，按城市查看自己的出发前准备册。
 
-## Page Structure
+## 页面结构
 
-### Homepage
+### 首页
 
-The homepage balances action and atmosphere.
+首页平衡行动效率和产品气质。
 
-Above the fold:
+首屏包含：
 
-- Brand name: Weizhi.
-- Short brand line, such as "Enter a city before arriving."
-- City search input.
-- Lightweight theme-tone tags.
-- One featured city or featured theme visual.
+- 品牌名：未至。
+- 一句短品牌语，例如“出发之前，先进入一座城市”。
+- 城市搜索框。
+- 轻量主题气质标签。
+- 一个精选城市或精选主题主视觉。
 
-Below the fold:
+首屏下方包含：
 
-- Selected East Asian city entries.
-- Theme cards, such as "The night before departure", "Before traveling alone", and "Streets in film".
-- A small set of popular works or place touchpoints.
+- 精选东亚城市入口。
+- 主题卡片，例如“出发前一晚”“一个人旅行前”“电影里的街道”。
+- 少量热门作品或地点触点。
 
-The homepage must not feel like a plain search page or a noisy content feed.
+首页不能像单纯搜索页，也不能像喧闹的信息流。
 
-### City Result Page
+### 城市结果页
 
-The city result page is the core experience. It should feel like a city notebook rather than a search result list.
+城市结果页是核心体验。它应该像一份城市笔记，而不是普通搜索结果列表。
 
-It contains:
+页面包含：
 
-- City title.
-- Short city-tone sentence.
-- Current filters and theme-tone tags.
-- Content type filter: All, Books, Films.
-- Theme-tone recommendation groups.
-- Work cards with a mixed card rhythm.
+- 城市标题。
+- 简短城市气质句。
+- 当前筛选条件和主题气质标签。
+- 内容类型筛选：全部、书籍、电影。
+- 主题气质推荐分组。
+- 有节奏变化的作品卡片。
 
-Each theme group uses:
+每个主题分组采用：
 
-- One prominent work card for the lead recommendation.
-- Smaller lightweight cards for secondary works.
+- 一个重点作品大卡片作为主推荐。
+- 若干轻量作品卡片作为次级推荐。
 
-The prominent card should include image, title, type, short recommendation reason, city relation, and collect action.
+重点大卡片应包含图片、标题、类型、短推荐理由、城市关系和收藏操作。
 
-The lightweight card should include image, title, type, short reason, and collect action.
+轻量卡片应包含图片、标题、类型、短理由和收藏操作。
 
-### Work Detail Page
+### 作品详情页
 
-The work detail page balances persuasion and city connection.
+作品详情页平衡“说服用户读/看”和“解释作品如何连接城市”。
 
-It contains:
+页面包含：
 
-- Large visual.
-- Work title.
-- Type.
-- Author, director, or creator fields where applicable.
-- Short synopsis.
-- Recommendation reason.
-- Suggested reading or viewing moment.
-- Explanation of how the work connects to the city.
-- Related place touchpoints.
-- Collect work action.
-- Similar recommendations.
+- 作品大图。
+- 作品名。
+- 类型。
+- 作者、导演或创作者信息。
+- 简短简介。
+- 推荐理由。
+- 适合什么时候读/看。
+- 它如何连接这座城市。
+- 相关地点触点。
+- 收藏作品操作。
+- 相似推荐。
 
-Card copy is concise and clear. Detail copy may be more literary, but must stay grounded and specific.
+卡片文案要克制清晰。详情页文案可以更有文学感，但必须具体、真实、不过度空泛。
 
-### Place Detail Page
+### 地点详情页
 
-The place detail page is a cultural touchpoint page, not a travel guide page.
+地点详情页是文化触点页，不是旅游攻略页。
 
-It contains:
+页面包含：
 
-- Place image.
-- Place name.
-- City.
-- Short introduction.
-- Meaning in the related work.
-- Why it is worth noticing after arrival.
-- Related work entry.
-- Collect place action.
+- 地点图片。
+- 地点名称。
+- 所属城市。
+- 简短介绍。
+- 它在关联作品中的意义。
+- 为什么抵达这座城市后值得留意。
+- 关联作品入口。
+- 收藏地点操作。
 
-The first version does not show map, route, opening hours, tickets, nearby food, or itinerary planning.
+第一版不展示地图、路线、开放时间、门票、附近餐厅或行程规划。
 
-The data model should still reserve address, latitude, longitude, and map query fields for future map support.
+数据模型仍需预留地址、纬度、经度和地图查询字段，方便未来支持地图。
 
-### Collection Page
+### 收藏页
 
-The collection page is a pre-departure notebook.
+收藏页是出发前准备册。
 
-It is organized by city instead of by raw collection time.
+它按城市组织，而不是单纯按收藏时间排列。
 
-Each city group shows:
+每个城市分组展示：
 
-- Number of collected works.
-- Number of collected places.
-- Recent collected items.
-- Entry into city collection detail.
+- 已收藏作品数。
+- 已收藏地点数。
+- 最近收藏内容。
+- 进入该城市收藏详情的入口。
 
-Inside a city collection detail, the page has two tabs:
+城市收藏详情内包含两个 tab：
 
-- Works
-- Places
+- 作品
+- 地点
 
-The first version does not include want-to-read, want-to-watch, read, watched, visited, check-in, or progress states.
+第一版不做想读、想看、已读、已看、去过、打卡或进度状态。
 
-### Reserved Pages
+### 预留页面
 
-The first version reserves but does not fully build:
+第一版预留但不完整建设：
 
-- My / settings center.
-- Content management backend.
-- Series browsing.
-- Map entry.
+- 我的 / 设置中心。
+- 内容管理后台。
+- 剧集浏览。
+- 地图入口。
 
-## User System
+## 用户系统
 
-The first version requires login for collection.
+第一版收藏功能需要登录。
 
-Login method:
+登录方式：
 
-- Email magic link or email verification code.
-- No password login.
-- No phone login.
-- No third-party login in the first version.
+- 邮箱 magic link 或邮箱验证码。
+- 不做密码登录。
+- 不做手机号登录。
+- 第一版不做第三方登录。
 
-Browsing rules:
+浏览规则：
 
-- Users can browse homepage, city result pages, work detail pages, and place detail pages without login.
-- Users must log in to collect works or places.
-- When an unauthenticated user clicks collect, a lightweight login modal appears.
-- After successful login, the original collect action completes automatically.
-- The collection page shows a gentle login prompt when opened by unauthenticated users.
+- 用户不登录也可以浏览首页、城市结果页、作品详情页和地点详情页。
+- 用户必须登录后才能收藏作品或地点。
+- 未登录用户点击收藏时，出现轻量登录弹窗。
+- 登录成功后，自动完成原本的收藏动作。
+- 未登录用户打开收藏页时，展示温和的登录引导。
 
-Login copy should be calm and contextual, such as "Save this pre-departure notebook."
+登录文案应轻、贴近场景，例如：“保存这份出发前清单”。
 
-## Collection Model
+## 收藏模型
 
-The first version has one collection behavior.
+第一版只有一种收藏行为。
 
-Collectable entities:
+可收藏对象：
 
-- Work
-- Place
+- 作品
+- 地点
 
-The UI does not split collection into want-to-read, want-to-watch, or want-to-go.
+UI 不把收藏拆成想读、想看或想去。
 
-Product meaning:
+产品语义：
 
-- Collecting a work means the user wants to keep it for reading or watching before departure.
-- Collecting a place means the user wants to keep the cultural touchpoint for possible attention after arrival.
+- 收藏作品表示用户希望把它留作出发前阅读或观看。
+- 收藏地点表示用户希望把这个文化触点留作到达后可能关注的线索。
 
-## Content Operations
+## 内容运营
 
-The first version uses CSV/Excel as the content maintenance interface.
+第一版使用 CSV/Excel 作为内容维护入口。
 
-Content pipeline:
+内容链路：
 
 ```text
-Online research / manual source search
--> Manual selection and verification
--> CSV / Excel content library
--> Import into production database
--> AI ranking, grouping, and explanation
--> Frontend display
+网上资料 / 人工搜索来源
+-> 人工筛选和核验
+-> CSV / Excel 内容库
+-> 导入生产数据库
+-> AI 排序、分组和解释
+-> 前台展示
 ```
 
-The app should not read CSV/Excel directly at runtime. The frontend reads from the application database.
+应用运行时不直接读取 CSV/Excel。前台只读取应用数据库。
 
-Required content entities:
+必要内容实体：
 
-- City
-- Work
-- Place
-- Work-city relationship
-- Work-place relationship
-- Image metadata
-- Source link
-- Source note
-- Review status
+- 城市
+- 作品
+- 地点
+- 作品与城市关系
+- 作品与地点关系
+- 图片元数据
+- 来源链接
+- 来源备注
+- 审核状态
 
-The frontend does not display source links by default, but backend content must remain source-traceable.
+前台默认不展示来源链接，但后台内容必须保留可追溯来源。
 
-## AI Recommendation Rules
+## AI 推荐规则
 
-AI is responsible for:
+AI 负责：
 
-- Ranking candidate works based on city, content type, and theme-tone tags.
-- Grouping recommendations into theme-tone sections.
-- Writing short card reasons.
-- Writing more complete detail-page reasons.
-- Writing short city-tone sentences.
+- 根据城市、内容类型和主题气质标签排序候选作品。
+- 将推荐组织成主题气质分组。
+- 生成卡片短理由。
+- 生成详情页更完整的推荐理由。
+- 生成简短城市气质句。
 
-AI is not allowed to:
+AI 不允许：
 
-- Invent works.
-- Invent places.
-- Invent relationships between works and cities.
-- Invent relationships between works and places.
-- Output facts outside the database.
+- 编造作品。
+- 编造地点。
+- 编造作品与城市的关系。
+- 编造作品与地点的关系。
+- 输出数据库之外的事实。
 
-AI receives verified database content as its factual context.
+AI 只能使用已核验数据库内容作为事实上下文。
 
-## AI Generation Mode
+## AI 生成模式
 
-The first version uses a hybrid generation model.
+第一版采用混合生成模式。
 
-Pre-generated path:
+预生成路径：
 
-- Common city and theme-tone combinations are generated in advance.
-- Pre-generated output is cached.
-- Pre-generated output is manually reviewed before publication.
+- 常见城市和主题气质组合提前生成。
+- 预生成结果进入缓存。
+- 预生成结果人工审核后发布。
 
-Real-time path:
+实时生成路径：
 
-- Uncommon combinations may be generated in real time.
-- Real-time generation can only use verified database facts.
-- Real-time generation is cached after creation.
-- Real-time generation can later enter an internal review queue.
+- 非常规组合可以实时生成。
+- 实时生成只能使用已核验数据库事实。
+- 实时生成结果创建后缓存。
+- 实时生成结果后续可以进入内部复审队列。
 
-Fallback path:
+兜底路径：
 
-- If AI generation fails, the app falls back to the city's default recommendation set.
-- If a city has too little content, the app shows a preparation state instead of forcing weak recommendations.
+- 如果 AI 生成失败，回退到该城市默认推荐。
+- 如果城市内容太少，展示资料整理中状态，不强行生成弱推荐。
 
-## Feedback
+## 反馈
 
-The first version does not include a full feedback system.
+第一版不做完整反馈系统。
 
-It provides an email feedback entry for:
+只提供邮件反馈入口，用于：
 
-- Incorrect content.
-- Image issues.
-- City recommendations.
-- General product feedback.
+- 内容错误。
+- 图片问题。
+- 城市推荐。
+- 一般产品反馈。
 
-## Visual Direction
+## 视觉方向
 
-The visual direction is modern city notebook.
+视觉方向是现代城市笔记感。
 
-It should feel:
+它应该是：
 
-- Modern.
-- Clean.
-- Light.
-- Quiet.
-- Human.
-- Image-aware.
-- Editorial, but still product-like.
+- 现代的。
+- 干净的。
+- 轻盈的。
+- 安静的。
+- 有人文气质的。
+- 重视图片的。
+- 有编辑感，但仍然像产品。
 
-It should not feel:
+它不应该像：
 
-- Like an old newspaper.
-- Like an old book.
-- Yellowed, antique, or heavily retro.
-- Like a conventional travel guide app.
-- Like a cold content management dashboard.
-- Like a generic AI chat interface.
-- Like a noisy social content feed.
+- 旧报纸。
+- 旧书。
+- 泛黄、仿古或强复古风。
+- 普通旅游攻略 app。
+- 冷冰冰的内容后台。
+- 通用 AI 聊天界面。
+- 喧闹的社交内容流。
 
-Visual principles:
+视觉原则：
 
-- Light modern palette.
-- Clean whitespace.
-- Strong but stable image areas.
-- Book covers, film stills, and city photos create hierarchy.
-- Short text blocks.
-- Lightweight tags.
-- Clear collection affordance.
-- Subtle motion only for state changes.
-- No decorative retro texture, yellowed paper, antique serif imitation, or old-newspaper layout.
+- 浅色现代配色。
+- 干净留白。
+- 明确且稳定的图片区。
+- 书封、电影剧照和城市照片共同建立层级。
+- 短文本。
+- 轻量标签。
+- 清晰的收藏操作。
+- 动效只用于状态变化。
+- 不使用装饰性复古纹理、泛黄纸张、仿古衬线字体或旧报纸式排版。
 
-Accessibility and usability principles:
+可访问性和可用性原则：
 
-- Mobile-first layout.
-- Body text no smaller than 16px.
-- Touch targets sized for mobile use.
-- Sufficient text contrast.
-- Meaningful image alt text.
-- Stable image aspect ratios to avoid layout shift.
-- Clear loading, empty, error, and unsupported-city states.
-- Reduced-motion-friendly interaction design.
+- 移动优先布局。
+- 正文字号不小于 16px。
+- 触控区域适合移动端使用。
+- 文本对比度充足。
+- 图片有有意义的 alt 文案。
+- 图片比例稳定，避免加载时布局跳动。
+- 加载、空状态、错误状态和未支持城市状态完整。
+- 动效需要支持减少动态效果偏好。
 
-## First-Version In Scope
+## 第一版范围
 
-- Mobile-first Web App / PWA.
-- Homepage search and theme-tone discovery.
-- Ten selected East Asian cities.
-- Book and film recommendations.
-- Reserved series data type.
-- City result page with theme-tone groups.
-- Work detail page.
-- Place detail page.
-- Email magic-link or email-code login.
-- Login-required collection.
-- Work and place collection.
-- City-organized collection page.
-- CSV/Excel content import into database.
-- AI ranking, grouping, and explanation based on verified content.
-- Pre-generated reviewed recommendations for common combinations.
-- Real-time constrained AI recommendations for uncommon combinations.
-- Email feedback entry.
-- Loading, error, empty, unsupported-city, and underfilled-city states.
+第一版包含：
 
-## First-Version Out of Scope
+- 移动优先 Web App / PWA。
+- 首页搜索和主题气质发现。
+- 10 个精选东亚城市。
+- 书籍和电影推荐。
+- 预留剧集数据类型。
+- 按主题气质分组的城市结果页。
+- 作品详情页。
+- 地点详情页。
+- 邮箱 magic link 或邮箱验证码登录。
+- 登录后收藏。
+- 作品和地点收藏。
+- 按城市组织的收藏页。
+- CSV/Excel 内容导入数据库。
+- 基于已核验内容的 AI 排序、分组和解释。
+- 常见组合的预生成审核推荐。
+- 非常规组合的受限实时 AI 推荐。
+- 邮件反馈入口。
+- 加载、错误、空状态、未支持城市和内容不足状态。
 
-- Flights.
-- Hotels.
-- Route planning.
-- Restaurants.
-- Map entry.
-- Opening hours.
-- Tickets.
-- Nearby recommendations.
-- Check-ins.
-- Visited status.
-- Want-to-read or want-to-watch states.
-- Reading or viewing progress.
-- Full My / settings center.
-- Content management backend.
-- User comments.
-- Community posts.
-- User-generated public content.
-- Real-time arbitrary-city online research.
-- Frontend source display.
-- Phone login.
-- Password login.
-- Third-party login.
-- Native iOS or Android app.
+## 第一版不包含
 
-## Acceptance Criteria
+- 机票。
+- 酒店。
+- 路线规划。
+- 餐厅。
+- 地图入口。
+- 开放时间。
+- 门票。
+- 附近推荐。
+- 打卡。
+- 去过状态。
+- 想读或想看状态。
+- 阅读或观影进度。
+- 完整我的 / 设置中心。
+- 内容管理后台。
+- 用户评论。
+- 社区发帖。
+- 用户公开发布内容。
+- 任意城市实时联网检索。
+- 前台来源展示。
+- 手机号登录。
+- 密码登录。
+- 第三方登录。
+- 原生 iOS 或 Android App。
 
-Product experience:
+## 验收标准
 
-- A new user can search a supported city, view recommendations, open a work detail page, and open a related place touchpoint within one minute.
-- Users can browse core content without logging in.
-- Users understand why login is needed when they collect an item.
-- After login, the original collection action completes.
-- The collection page organizes saved works and places by city.
-- Unsupported or underfilled cities never show low-quality forced recommendations.
-- AI failure does not block browsing.
+产品体验：
 
-Content quality:
+- 新用户可以在 1 分钟内完成：搜索已支持城市、查看推荐、打开作品详情、打开相关地点触点。
+- 用户不登录也能浏览核心内容。
+- 用户点击收藏时能理解为什么需要登录。
+- 登录后能自动完成原本的收藏动作。
+- 收藏页能按城市组织已保存的作品和地点。
+- 未支持或内容不足的城市不展示低质量硬凑推荐。
+- AI 失败不阻断用户浏览。
 
-- Each formally supported city has displayable works.
-- Core cities have deeper coverage than expansion cities.
-- Every displayed work has a clear city relationship.
-- Every displayed place has a clear work relationship or city touchpoint meaning.
-- Every frontend fact can be traced to backend source fields.
-- AI output contains no database-external facts.
+内容质量：
 
-Visual quality:
+- 每个正式支持城市都有可展示作品。
+- 核心城市内容深度高于扩展城市。
+- 每个前台展示作品都有清楚的城市关系。
+- 每个前台展示地点都有清楚的作品关系或城市触点意义。
+- 每个前台事实都能追溯到后台来源字段。
+- AI 输出不包含数据库之外的事实。
 
-- The app reads as a modern city notebook, not old paper, old books, or old newspaper.
-- The homepage balances search and atmosphere.
-- The city result page has clear theme groups and card rhythm.
-- Work and place images reserve layout space before loading.
-- Mobile touch targets are comfortable.
-- Text is readable and not dependent on low-contrast gray.
-- Empty states remain refined and on-brand.
+视觉质量：
 
-Operational quality:
+- 应用整体是现代城市笔记感，不是旧纸张、旧书或旧报纸。
+- 首页平衡搜索效率和产品氛围。
+- 城市结果页有清晰主题分组和卡片节奏。
+- 作品和地点图片加载前预留布局空间。
+- 移动端触控区域舒适。
+- 文字清晰可读，不依赖低对比灰色。
+- 空状态保持精致并符合品牌气质。
 
-- Content can be maintained in CSV/Excel and imported into the database.
-- Pre-generated AI content can be reviewed before publication.
-- Real-time AI output can be cached.
-- Feedback can be sent through an email entry.
+运营质量：
+
+- 内容可以通过 CSV/Excel 维护并导入数据库。
+- 预生成 AI 内容可以在发布前人工审核。
+- 实时 AI 输出可以缓存。
+- 用户可以通过邮件入口反馈问题。
