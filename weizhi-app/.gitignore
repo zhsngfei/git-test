@@ -14,3 +14,5 @@ playwright-report/
 test-results/
 *.pyc
 *.log
+*.egg-info/
+pytest-cache-files-*/
