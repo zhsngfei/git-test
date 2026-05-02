@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>未至 UI/UX 中保真稿</title>
+    <style>
+      :root {
+        --paper: #f7f5f0;
+        --surface: #ffffff;
+        --ink: #1d1d1f;
+        --muted: #6f6a62;
+        --line: #e6e0d7;
+        --soft: #ece7df;
+        --accent: #2f5d50;
+        --accent-soft: #dce8e1;
+        --film: #2e3540;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #ebe7df;
+        color: var(--ink);
+        font-family: Arial, "Microsoft YaHei", sans-serif;
+      }
+
+      .page {
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+
+      .intro {
+        margin-bottom: 28px;
+      }
+
+      .intro h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      .intro p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .screens {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(260px, 1fr));
+        gap: 22px;
+        align-items: start;
+      }
+
+      .phone {
+        width: 100%;
+        min-width: 0;
+        border-radius: 28px;
+        background: var(--paper);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 22px 70px rgba(44, 39, 32, 0.16);
+        overflow: hidden;
+      }
+
+      .screen-title {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.54);
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .phone-body {
+        min-height: 720px;
+        padding: 20px 18px 26px;
+      }
+
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h2 {
+        font-size: 28px;
+        line-height: 1.2;
+        letter-spacing: 0;
+      }
+
+      h3 {
+        font-size: 17px;
+        line-height: 1.35;
+      }
+
+      p {
+        font-size: 14px;
+        line-height: 1.65;
+        color: var(--muted);
+      }
+
+      .eyebrow {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .search {
+        margin: 22px 0 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 12px;
+      }
+
+      .search label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+
+      .search-row {
+        display: flex;
+        gap: 8px;
+      }
+
+      .input {
+        min-height: 46px;
+        flex: 1;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: #fbfaf7;
+        padding: 0 12px;
+        color: #9a948a;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+      }
+
+      .btn {
+        min-height: 46px;
+        border-radius: 14px;
+        background: var(--ink);
+        color: white;
+        border: 0;
+        padding: 0 14px;
+        font-size: 14px;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 18px;
+      }
+
+      .chip {
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.78);
+        color: #5d574f;
+        font-size: 13px;
+      }
+
+      .chip.active {
+        background: var(--accent-soft);
+        color: var(--accent);
+        border-color: #c5d8cd;
+      }
+
+      .hero {
+        border-radius: 22px;
+        overflow: hidden;
+        background: var(--surface);
+        border: 1px solid var(--line);
+      }
+
+      .photo {
+        height: 150px;
+        background:
+          linear-gradient(rgba(31, 38, 43, 0.06), rgba(31, 38, 43, 0.08)),
+          linear-gradient(135deg, #9fb5ad, #d7cec1 46%, #7c8d99);
+      }
+
+      .photo.tokyo {
+        background:
+          linear-gradient(rgba(30, 32, 36, 0.06), rgba(30, 32, 36, 0.1)),
+          linear-gradient(135deg, #b7bcc8, #e0d2c5 44%, #3b4656);
+      }
+
+      .photo.place {
+        background:
+          linear-gradient(rgba(47, 93, 80, 0.08), rgba(47, 93, 80, 0.08)),
+          linear-gradient(135deg, #9bb7a7, #e3d8c9 50%, #5f7369);
+      }
+
+      .hero-copy,
+      .card,
+      .section {
+        padding: 14px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 22px 0 10px;
+      }
+
+      .section-heading span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .city-card,
+      .work-card,
+      .place-card,
+      .collection-card {
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.82);
+        padding: 14px;
+      }
+
+      .city-card {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .badge {
+        align-self: start;
+        border-radius: 999px;
+        background: #f0eee8;
+        color: var(--muted);
+        padding: 5px 9px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .icon-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.78);
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+      }
+
+      .filters {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 16px 0 20px;
+      }
+
+      .filter {
+        min-height: 38px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: white;
+        display: grid;
+        place-items: center;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .filter.active {
+        background: var(--ink);
+        color: white;
+        border-color: var(--ink);
+      }
+
+      .group {
+        margin-bottom: 22px;
+      }
+
+      .large-work {
+        overflow: hidden;
+        padding: 0;
+      }
+
+      .cover-row {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .cover {
+        width: 72px;
+        aspect-ratio: 3 / 4;
+        border-radius: 12px;
+        background: linear-gradient(145deg, #5c665f, #d9c8b9);
+      }
+
+      .cover.film {
+        background: linear-gradient(145deg, #303845, #b9c0c6);
+      }
+
+      .meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 8px 0;
+      }
+
+      .meta span {
+        font-size: 12px;
+        color: var(--muted);
+        background: #f1eee8;
+        border-radius: 999px;
+        padding: 4px 8px;
+      }
+
+      .collect {
+        min-height: 42px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+        width: 100%;
+        margin-top: 12px;
+      }
+
+      .detail-hero {
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        margin-bottom: 18px;
+      }
+
+      .detail-hero .photo {
+        height: 210px;
+      }
+
+      .quote-box {
+        border-left: 3px solid var(--accent);
+        padding: 4px 0 4px 12px;
+        margin: 16px 0;
+      }
+
+      .tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin: 16px 0;
+      }
+
+      .tab {
+        min-height: 40px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        background: white;
+        border: 1px solid var(--line);
+        font-size: 14px;
+      }
+
+      .tab.active {
+        background: var(--ink);
+        color: white;
+      }
+
+      .bottom-nav {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 20px;
+        border-radius: 20px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.86);
+        padding: 8px;
+      }
+
+      .bottom-nav span {
+        min-height: 38px;
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .bottom-nav .active {
+        border-radius: 14px;
+        background: #f0eee8;
+        color: var(--ink);
+      }
+
+      @media (max-width: 1200px) {
+        .screens {
+          grid-template-columns: repeat(2, minmax(280px, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          padding: 18px;
+        }
+
+        .screens {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <section class="intro">
+        <h1>未至 UI/UX 中保真稿</h1>
+        <p>方向：现代城市笔记感。浅色、干净、图片有权重，不做旧书旧报纸风。</p>
+      </section>
+
+      <section class="screens">
+        <article class="phone">
+          <div class="screen-title">首页</div>
+          <div class="phone-body">
+            <div class="eyebrow">旅行前文化准备</div>
+            <h2>未至</h2>
+            <p style="margin-top: 8px">出发之前，先进入一座城市。</p>
+
+            <div class="search">
+              <label>你想先进入哪座城市？</label>
+              <div class="search-row">
+                <div class="input">搜索京都、东京、台北</div>
+                <button class="btn">搜索</button>
+              </div>
+            </div>
+
+            <div class="chips">
+              <span class="chip active">安静</span>
+              <span class="chip">怀旧</span>
+              <span class="chip">人文</span>
+              <span class="chip">电影感</span>
+              <span class="chip">城市漫游</span>
+            </div>
+
+            <div class="hero">
+              <div class="photo"></div>
+              <div class="hero-copy">
+                <h3>京都：安静地进入一座城市</h3>
+                <p style="margin-top: 6px">从一本小说、一条河和旧街区开始，而不是从攻略清单开始。</p>
+              </div>
+            </div>
+
+            <div class="section-heading">
+              <h3>精选城市</h3>
+              <span>查看全部</span>
+            </div>
+            <div class="stack">
+              <div class="city-card">
+                <div>
+                  <h3>东京</h3>
+                  <p>孤独、夜晚、现代都市与日常缝隙。</p>
+                </div>
+                <span class="badge">核心</span>
+              </div>
+              <div class="city-card">
+                <div>
+                  <h3>台北</h3>
+                  <p>青春、雨、街巷和慢慢靠近的人情。</p>
+                </div>
+                <span class="badge">核心</span>
+              </div>
+            </div>
+            <nav class="bottom-nav"><span class="active">探索</span><span>收藏</span><span>我的</span></nav>
+          </div>
+        </article>
+
+        <article class="phone">
+          <div class="screen-title">城市结果页</div>
+          <div class="phone-body">
+            <div class="topbar"><button class="icon-btn">‹</button><button class="icon-btn">♡</button></div>
+            <div class="eyebrow">日本 · 核心城市</div>
+            <h2>京都</h2>
+            <p style="margin-top: 8px">适合用安静、古典和缓慢的方式进入。</p>
+
+            <div class="filters"><div class="filter active">全部</div><div class="filter">书籍</div><div class="filter">电影</div></div>
+            <div class="chips"><span class="chip active">安静</span><span class="chip">经典</span><span class="chip">文学感</span></div>
+
+            <section class="group">
+              <div class="section-heading"><h3>安静地进入京都</h3><span>3 个作品</span></div>
+              <article class="work-card large-work">
+                <div class="photo"></div>
+                <div class="card">
+                  <div class="meta"><span>书籍</span><span>经典</span><span>2 个地点</span></div>
+                  <h3>古都</h3>
+                  <p style="margin-top: 6px">从季节、街巷和传统生活里，看见京都更缓慢的一面。</p>
+                  <button class="collect">收藏作品</button>
+                </div>
+              </article>
+            </section>
+
+            <section class="group">
+              <div class="section-heading"><h3>电影里的街道</h3><span>2 个作品</span></div>
+              <div class="stack">
+                <article class="work-card cover-row">
+                  <div class="cover film"></div>
+                  <div><h3>如父如子</h3><p>从家庭关系进入城市日常。</p></div>
+                </article>
+                <article class="work-card cover-row">
+                  <div class="cover"></div>
+                  <div><h3>鸭川食堂</h3><p>适合出发前一晚慢慢读。</p></div>
+                </article>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <article class="phone">
+          <div class="screen-title">作品详情页</div>
+          <div class="phone-body">
+            <div class="topbar"><button class="icon-btn">‹</button><button class="icon-btn">♡</button></div>
+            <div class="detail-hero"><div class="photo"></div></div>
+            <div class="meta"><span>书籍</span><span>川端康成</span><span>1962</span></div>
+            <h2>古都</h2>
+            <p style="margin-top: 10px">一部通过京都街巷、季节和传统生活气息进入城市记忆的小说。</p>
+
+            <div class="quote-box">
+              <h3>为什么出发前读</h3>
+              <p>它不急着解释京都，而是让你先习惯这座城市的留白、秩序和季节感。</p>
+            </div>
+
+            <section class="section city-card">
+              <h3>它如何连接京都</h3>
+              <p style="margin-top: 8px">作品中的城市不是背景板，而是人物生活方式和情绪节奏的一部分。</p>
+            </section>
+
+            <div class="section-heading"><h3>地点触点</h3><span>2 个</span></div>
+            <div class="stack">
+              <article class="place-card"><h3>祇园</h3><p>理解传统街区和旧日生活秩序的入口。</p></article>
+              <article class="place-card"><h3>鸭川</h3><p>连接京都日常和城市漫游经验。</p></article>
+            </div>
+            <button class="collect">收藏作品</button>
+          </div>
+        </article>
+
+        <article class="phone">
+          <div class="screen-title">地点详情页</div>
+          <div class="phone-body">
+            <div class="topbar"><button class="icon-btn">‹</button><button class="icon-btn">♡</button></div>
+            <div class="detail-hero"><div class="photo place"></div></div>
+            <div class="eyebrow">京都 · 文化触点</div>
+            <h2>祇园</h2>
+            <p style="margin-top: 10px">京都代表性的传统街区之一，与城市的古典气质和夜色记忆紧密相关。</p>
+
+            <section class="section city-card" style="margin-top: 18px">
+              <h3>它在作品中的意义</h3>
+              <p style="margin-top: 8px">祇园帮助用户理解《古都》中传统街区、旧日生活秩序和城市气质之间的关系。</p>
+            </section>
+
+            <div class="section-heading"><h3>关联作品</h3><span>进入详情</span></div>
+            <article class="work-card cover-row">
+              <div class="cover"></div>
+              <div><h3>古都</h3><p>从街巷和季节进入京都。</p></div>
+            </article>
+            <button class="collect">收藏地点</button>
+          </div>
+        </article>
+
+        <article class="phone">
+          <div class="screen-title">收藏准备册</div>
+          <div class="phone-body">
+            <div class="eyebrow">我的收藏</div>
+            <h2>出发前准备册</h2>
+            <p style="margin-top: 8px">按城市保存想读、想看和想亲自留意的文化触点。</p>
+
+            <div class="section-heading"><h3>城市</h3><span>2 座</span></div>
+            <div class="stack">
+              <article class="collection-card">
+                <h3>京都</h3>
+                <p style="margin-top: 6px">3 个作品 · 4 个地点</p>
+                <div class="tabs"><div class="tab active">作品</div><div class="tab">地点</div></div>
+                <div class="stack">
+                  <article class="work-card cover-row">
+                    <div class="cover"></div>
+                    <div><h3>古都</h3><p>出发前慢慢读。</p></div>
+                  </article>
+                </div>
+              </article>
+
+              <article class="collection-card">
+                <h3>东京</h3>
+                <p style="margin-top: 6px">2 个作品 · 1 个地点</p>
+              </article>
+            </div>
+            <nav class="bottom-nav"><span>探索</span><span class="active">收藏</span><span>我的</span></nav>
+          </div>
+        </article>
+      </section>
+    </div>
+  </body>
+</html>
