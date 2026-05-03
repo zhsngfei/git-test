@@ -107,7 +107,7 @@ export function CityPage({ recommendations }: CityPageProps) {
           <Link className="font-medium text-neutral-950" href="/">
             探索
           </Link>
-          <span>收藏</span>
+          <Link href="/collections">收藏</Link>
           <span>我的</span>
         </div>
       </nav>

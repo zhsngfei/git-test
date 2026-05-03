@@ -252,13 +252,42 @@
 
 提交：
 
+- `cc40285 feat: add login-gated collections`
+
+### Task 12: 收藏准备册第一切片
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/collections/schemas.py`
+- `weizhi-app/backend/app/features/collections/repository.py`
+- `weizhi-app/backend/app/features/collections/router.py`
+- `weizhi-app/backend/tests/test_collections_api.py`
+- `weizhi-app/frontend/src/features/collections/types.ts`
+- `weizhi-app/frontend/src/features/collections/api.ts`
+- `weizhi-app/frontend/src/features/collections/CollectionButton.tsx`
+- `weizhi-app/frontend/src/features/collections/CollectionsPage.tsx`
+- `weizhi-app/frontend/src/app/collections/page.tsx`
+- `weizhi-app/frontend/src/features/city/CityPage.tsx`
+- `weizhi-app/frontend/src/features/works/WorkDetailPage.tsx`
+- `weizhi-app/frontend/src/features/places/PlaceDetailPage.tsx`
+
+说明：
+
+- 后端新增 `GET /api/collections/preparation`。
+- 收藏准备册按城市聚合收藏作品和地点。
+- 前端新增 `/collections` 页面。
+- 收藏页未登录时显示登录入口，登录后读取当前用户收藏准备册。
+- 城市页、作品页和地点页底部导航的“收藏”可以进入收藏准备册。
+
+提交：
+
 - 待提交
 
 ## 最近验证结果
 
 最近一次总体验证：
 
-- 后端测试：`14 passed in 0.70s`
+- 后端测试：`15 passed in 0.65s`
 - 前端 lint：通过
 - 前端 build：通过
 - Git 工作区：干净

@@ -42,3 +42,26 @@ def test_user_can_delete_collection_item() -> None:
 
     assert delete_response.status_code == 204
     assert list_response.json()["items"] == []
+
+
+def test_user_can_view_preparation_book_grouped_by_city() -> None:
+    client = TestClient(app)
+    headers = {"X-Weizhi-User-Id": "user-collections-preparation"}
+    client.post(
+        "/api/collections",
+        headers=headers,
+        json={"entityType": "work", "entityId": "old-capital", "citySlug": "kyoto"},
+    )
+    client.post(
+        "/api/collections",
+        headers=headers,
+        json={"entityType": "place", "entityId": "gion", "citySlug": "kyoto"},
+    )
+
+    response = client.get("/api/collections/preparation", headers=headers)
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["cities"][0]["city"]["slug"] == "kyoto"
+    assert payload["cities"][0]["works"][0]["slug"] == "old-capital"
+    assert payload["cities"][0]["places"][0]["slug"] == "gion"

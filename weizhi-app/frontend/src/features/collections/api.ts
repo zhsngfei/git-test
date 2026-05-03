@@ -1,4 +1,10 @@
-import type { CollectionEntityType, CollectionItem, CollectionList, CollectionRequest } from "./types";
+import type {
+  CollectionEntityType,
+  CollectionItem,
+  CollectionList,
+  CollectionRequest,
+  PreparationBook,
+} from "./types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -24,6 +30,15 @@ export async function getCollections(userId: string): Promise<CollectionList> {
   });
 
   return parseCollectionResponse<CollectionList>(response);
+}
+
+export async function getPreparationBook(userId: string): Promise<PreparationBook> {
+  const response = await fetch(`${API_BASE_URL}/api/collections/preparation`, {
+    headers: userHeaders(userId),
+    cache: "no-store",
+  });
+
+  return parseCollectionResponse<PreparationBook>(response);
 }
 
 export async function addCollection(

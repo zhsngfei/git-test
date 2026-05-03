@@ -4,10 +4,17 @@ from fastapi import APIRouter, Header, HTTPException, Response, status
 
 from app.features.collections.repository import (
     add_user_collection,
+    build_preparation_book,
     delete_user_collection,
     list_user_collections,
 )
-from app.features.collections.schemas import CollectionCreate, CollectionItem, CollectionList, EntityType
+from app.features.collections.schemas import (
+    CollectionCreate,
+    CollectionItem,
+    CollectionList,
+    EntityType,
+    PreparationBook,
+)
 
 router = APIRouter(prefix="/api/collections", tags=["collections"])
 
@@ -20,6 +27,16 @@ def get_collections(
         raise HTTPException(status_code=401, detail="Authentication required")
 
     return CollectionList(items=list_user_collections(user_id))
+
+
+@router.get("/preparation")
+def get_preparation_book(
+    user_id: Annotated[str | None, Header(alias="X-Weizhi-User-Id")] = None,
+) -> PreparationBook:
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    return build_preparation_book(user_id)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
