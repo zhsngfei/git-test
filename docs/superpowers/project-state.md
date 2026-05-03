@@ -188,13 +188,47 @@
 
 提交：
 
+- `101faca feat: add city recommendations page`
+
+### Task 10: 作品详情与地点触点第一切片
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/works/repository.py`
+- `weizhi-app/backend/app/features/works/router.py`
+- `weizhi-app/backend/app/features/places/repository.py`
+- `weizhi-app/backend/app/features/places/router.py`
+- `weizhi-app/backend/app/main.py`
+- `weizhi-app/backend/tests/test_works_api.py`
+- `weizhi-app/backend/tests/test_places_api.py`
+- `weizhi-app/frontend/src/features/works/types.ts`
+- `weizhi-app/frontend/src/features/works/api.ts`
+- `weizhi-app/frontend/src/features/works/WorkDetailPage.tsx`
+- `weizhi-app/frontend/src/app/works/[slug]/page.tsx`
+- `weizhi-app/frontend/src/features/places/types.ts`
+- `weizhi-app/frontend/src/features/places/api.ts`
+- `weizhi-app/frontend/src/features/places/PlaceDetailPage.tsx`
+- `weizhi-app/frontend/src/app/places/[slug]/page.tsx`
+- `weizhi-app/frontend/src/features/city/CityPage.tsx`
+
+说明：
+
+- 后端新增 `GET /api/works/{work_slug}`。
+- 后端新增 `GET /api/places/{place_slug}`。
+- 前端新增 `/works/[slug]` 作品详情页。
+- 前端新增 `/places/[slug]` 地点详情页。
+- 城市结果页作品卡片和地点卡片可以进入详情页。
+- 收藏按钮为静态入口，真实登录收藏下一切片实现。
+
+提交：
+
 - 待提交
 
 ## 最近验证结果
 
 最近一次总体验证：
 
-- 后端测试：`7 passed in 0.55s`
+- 后端测试：`11 passed in 0.76s`
 - 前端 lint：通过
 - 前端 build：通过
 - Git 工作区：干净
