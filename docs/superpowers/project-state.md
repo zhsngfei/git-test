@@ -281,13 +281,41 @@
 
 提交：
 
+- `da51576 feat: add collections preparation book`
+
+### Task 13: mimoaiapi 推荐第一切片
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/recommendations/schemas.py`
+- `weizhi-app/backend/app/features/recommendations/provider.py`
+- `weizhi-app/backend/app/features/recommendations/service.py`
+- `weizhi-app/backend/app/features/recommendations/router.py`
+- `weizhi-app/backend/app/main.py`
+- `weizhi-app/backend/tests/test_recommendations_api.py`
+- `weizhi-app/frontend/src/features/recommendations/types.ts`
+- `weizhi-app/frontend/src/features/recommendations/api.ts`
+- `weizhi-app/frontend/src/features/recommendations/RecommendationStatus.tsx`
+- `weizhi-app/frontend/src/features/city/CityPage.tsx`
+
+说明：
+
+- 后端新增 `POST /api/recommendations/city`。
+- 推荐响应包含 `cached/generated/fallback` 状态。
+- 第一阶段 provider 使用已核验内容生成结构化推荐分组，保留 `mimoaiapi` 接入边界。
+- 同请求会命中内存缓存。
+- 未知城市或无内容时返回回退推荐，不编造作品或地点。
+- 前端城市页展示推荐状态和推荐分组概览。
+
+提交：
+
 - 待提交
 
 ## 最近验证结果
 
 最近一次总体验证：
 
-- 后端测试：`15 passed in 0.65s`
+- 后端测试：`17 passed in 0.69s`
 - 前端 lint：通过
 - 前端 build：通过
 - Git 工作区：干净

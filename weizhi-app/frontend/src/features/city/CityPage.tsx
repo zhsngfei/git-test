@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { RecommendationStatus } from "@/features/recommendations/RecommendationStatus";
 import type { CityContentTypeFilter, CityRecommendations, CityWork } from "./types";
 
 type CityPageProps = {
@@ -67,6 +68,8 @@ export function CityPage({ recommendations }: CityPageProps) {
             })}
           </div>
         </section>
+
+        <RecommendationStatus citySlug={city.slug} />
 
         {featuredWork && (
           <section className="space-y-3">
