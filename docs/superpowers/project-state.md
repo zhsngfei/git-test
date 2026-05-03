@@ -222,13 +222,43 @@
 
 提交：
 
+- `b2a7c69 feat: add work and place detail pages`
+
+### Task 11: 登录与收藏第一切片
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/collections/schemas.py`
+- `weizhi-app/backend/app/features/collections/repository.py`
+- `weizhi-app/backend/app/features/collections/router.py`
+- `weizhi-app/backend/app/main.py`
+- `weizhi-app/backend/tests/test_collections_api.py`
+- `weizhi-app/frontend/src/features/auth/AuthDialog.tsx`
+- `weizhi-app/frontend/src/features/auth/localSession.ts`
+- `weizhi-app/frontend/src/features/collections/types.ts`
+- `weizhi-app/frontend/src/features/collections/api.ts`
+- `weizhi-app/frontend/src/features/collections/CollectionButton.tsx`
+- `weizhi-app/frontend/src/features/works/WorkDetailPage.tsx`
+- `weizhi-app/frontend/src/features/places/PlaceDetailPage.tsx`
+
+说明：
+
+- 后端新增 `GET /api/collections`。
+- 后端新增 `POST /api/collections`。
+- 后端新增 `DELETE /api/collections/{entity_type}/{entity_id}`。
+- 后端暂用 `X-Weizhi-User-Id` 表示当前用户，后续替换为 Supabase JWT 校验。
+- 前端作品和地点详情页收藏按钮会在未登录时打开登录弹窗。
+- 登录弹窗本阶段记录邮箱，并用当前设备状态模拟登录与收藏。
+
+提交：
+
 - 待提交
 
 ## 最近验证结果
 
 最近一次总体验证：
 
-- 后端测试：`11 passed in 0.76s`
+- 后端测试：`14 passed in 0.70s`
 - 前端 lint：通过
 - 前端 build：通过
 - Git 工作区：干净

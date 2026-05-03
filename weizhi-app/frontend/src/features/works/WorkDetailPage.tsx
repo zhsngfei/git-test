@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { CollectionButton } from "@/features/collections/CollectionButton";
 import type { RelatedPlace, WorkDetailResponse } from "./types";
 
 type WorkDetailPageProps = {
@@ -38,12 +39,7 @@ export function WorkDetailPage({ detail }: WorkDetailPageProps) {
           </div>
           {work.creator && <p className="text-base text-neutral-700">{work.creator}</p>}
           {work.summary && <p className="text-base leading-7 text-neutral-700">{work.summary}</p>}
-          <button
-            className="min-h-12 w-full rounded-xl bg-neutral-950 px-4 text-sm font-medium text-white"
-            type="button"
-          >
-            收藏
-          </button>
+          <CollectionButton citySlug={city.slug} entityId={work.id} entityType="work" />
         </header>
 
         {recommendationReason && (

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CollectionButton } from "@/features/collections/CollectionButton";
 import type { PlaceDetailResponse, RelatedWork } from "./types";
 
 type PlaceDetailPageProps = {
@@ -28,12 +29,7 @@ export function PlaceDetailPage({ detail }: PlaceDetailPageProps) {
             {place.nameOriginal && <p className="text-base text-neutral-500">{place.nameOriginal}</p>}
           </div>
           {place.summary && <p className="text-base leading-7 text-neutral-700">{place.summary}</p>}
-          <button
-            className="min-h-12 w-full rounded-xl bg-neutral-950 px-4 text-sm font-medium text-white"
-            type="button"
-          >
-            收藏
-          </button>
+          <CollectionButton citySlug={city.slug} entityId={place.id} entityType="place" />
         </header>
 
         {meaning && (
