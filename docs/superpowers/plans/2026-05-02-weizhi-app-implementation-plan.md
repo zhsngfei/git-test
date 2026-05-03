@@ -84,7 +84,7 @@ D:\codex.files\git-test\weizhi-app\
 | 4 | 作品与地点详情 | 用户可以从作品进入地点触点 |
 | 5 | 登录与收藏 | 用户登录后可收藏作品和地点 |
 | 6 | 收藏准备册 | 收藏页按城市展示作品和地点 |
-| 7 | mimoaiapi 推荐 | 系统基于真实数据生成主题分组和推荐解释 |
+| 7 | mimoaiapi 推荐 | 系统基于真实数据生成内容分组和推荐解释 |
 | 8 | 上线质量 | 移动端、加载、错误、空状态和部署检查完成 |
 
 ---
@@ -526,7 +526,6 @@ create table if not exists work_city_relations (
   city_id uuid not null references cities(id) on delete cascade,
   relation_summary text not null,
   recommendation_note text not null,
-  theme_tags text[] not null default '{}',
   source_url text,
   source_note text,
   review_status text not null check (review_status in ('draft', 'reviewed', 'published')),
@@ -558,7 +557,6 @@ create table if not exists recommendation_caches (
   id uuid primary key default gen_random_uuid(),
   city_id uuid not null references cities(id) on delete cascade,
   content_type text not null default 'all',
-  theme_tags text[] not null default '{}',
   cache_key text not null unique,
   result_json jsonb not null,
   generation_mode text not null check (generation_mode in ('pre_generated', 'realtime')),
@@ -706,7 +704,7 @@ Create `D:\codex.files\git-test\weizhi-app\content\templates\cities.csv`:
 
 ```csv
 slug,name_zh,name_en,country_region,is_supported,content_depth,tone_summary,hero_image_url
-kyoto,京都,Kyoto,日本,true,core,安静、古典、适合旅行前慢慢进入的城市,
+kyoto,京都,Kyoto,日本,true,core,从作品、街区和地点关系开始认识这座城市,
 tokyo,东京,Tokyo,日本,true,core,孤独、夜晚、现代都市与日常缝隙,
 ```
 
@@ -727,7 +725,7 @@ Create `D:\codex.files\git-test\weizhi-app\content\templates\places.csv`:
 ```csv
 slug,city_slug,name,intro,image_url,address,latitude,longitude,map_query,review_status
 gion,kyoto,祇园,京都代表性的传统街区之一，与城市的古典气质和夜色记忆紧密相关,,,,,京都 祇园,reviewed
-kamo-river,kyoto,鸭川,贯穿京都日常生活的河流，也是许多城市漫游经验的起点,,,,,京都 鸭川,reviewed
+kamo-river,kyoto,鸭川,贯穿京都日常生活的河流，也是理解作品中城市关系的地点触点,,,,,京都 鸭川,reviewed
 ```
 
 - [ ] **Step 4: 写入关系 CSV 模板**
@@ -735,9 +733,9 @@ kamo-river,kyoto,鸭川,贯穿京都日常生活的河流，也是许多城市�
 Create `D:\codex.files\git-test\weizhi-app\content\templates\work_city_relations.csv`:
 
 ```csv
-work_slug,city_slug,relation_summary,recommendation_note,theme_tags,source_url,source_note,review_status
-old-capital,kyoto,作品以京都传统生活和城市记忆为核心背景,适合在出发前用安静方式进入京都的季节感和旧日秩序,"安静|经典|文学感",,人工核验,reviewed
-lost-in-translation,tokyo,电影通过东京酒店、街道和夜晚表现异乡人的孤独感,适合想从夜色和疏离感进入东京的用户,"孤独|电影感|城市漫游",,人工核验,reviewed
+work_slug,city_slug,relation_summary,recommendation_note,source_url,source_note,review_status
+old-capital,kyoto,作品以京都传统生活和城市记忆为核心背景,适合在出发前理解京都的季节感和旧日秩序,,人工核验,reviewed
+lost-in-translation,tokyo,电影通过东京酒店、街道和夜晚表现异乡人的城市经验,适合在出发前理解东京的现代都市关系,,人工核验,reviewed
 ```
 
 Create `D:\codex.files\git-test\weizhi-app\content\templates\work_place_relations.csv`:
@@ -766,7 +764,6 @@ REQUIRED_COLUMNS: dict[str, set[str]] = {
         "city_slug",
         "relation_summary",
         "recommendation_note",
-        "theme_tags",
         "review_status",
     },
     "work_place_relations.csv": {"work_slug", "place_slug", "meaning", "review_status"},
@@ -868,7 +865,7 @@ def list_supported_cities() -> list[dict[str, str | bool]]:
             "countryRegion": "日本",
             "isSupported": True,
             "contentDepth": "core",
-            "toneSummary": "安静、古典、适合旅行前慢慢进入的城市",
+            "toneSummary": "从作品、街区和地点关系开始认识这座城市",
         },
         {
             "slug": "tokyo",
@@ -983,8 +980,6 @@ Create `D:\codex.files\git-test\weizhi-app\frontend\src\features\home\HomePage.t
 ```tsx
 import type { CitySummary } from "./types";
 
-const themeTags = ["安静", "怀旧", "人文", "电影感", "城市漫游"];
-
 type HomePageProps = {
   cities: CitySummary[];
 };
@@ -1016,21 +1011,6 @@ export function HomePage({ cities }: HomePageProps) {
             </button>
           </div>
         </form>
-
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold">主题气质</h2>
-          <div className="flex flex-wrap gap-2">
-            {themeTags.map((tag) => (
-              <button
-                className="min-h-11 rounded-full border border-neutral-200 bg-white px-4 text-sm text-neutral-700"
-                key={tag}
-                type="button"
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </section>
 
         <section className="space-y-3">
           <h2 className="text-base font-semibold">精选城市</h2>
@@ -1112,7 +1092,7 @@ Create `D:\codex.files\git-test\docs\superpowers\plans\2026-05-02-weizhi-slice-b
 
 - 后端：`GET /api/cities/{city_slug}/recommendations`
 - 前端：`/city/[slug]`
-- 验收：用户从首页进入京都结果页，看到主题气质分组和作品卡片。
+- 验收：用户从首页进入京都结果页，看到推荐作品、关联地点和作品卡片。
 
 ## Slice 3: 作品详情与地点触点
 

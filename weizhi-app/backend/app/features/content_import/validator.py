@@ -11,7 +11,6 @@ REQUIRED_COLUMNS: dict[str, set[str]] = {
         "city_slug",
         "relation_summary",
         "recommendation_note",
-        "theme_tags",
         "review_status",
     },
     "work_place_relations.csv": {"work_slug", "place_slug", "meaning", "review_status"},

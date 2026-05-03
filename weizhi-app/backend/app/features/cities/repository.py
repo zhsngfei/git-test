@@ -6,7 +6,7 @@ def list_supported_cities() -> list[dict[str, str | bool]]:
             "countryRegion": "日本",
             "isSupported": True,
             "contentDepth": "core",
-            "toneSummary": "安静、古典、适合旅行前慢慢进入的城市",
+            "toneSummary": "从作品、街区和地点关系开始认识这座城市",
         },
         {
             "slug": "tokyo",

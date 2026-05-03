@@ -1,7 +1,5 @@
 import type { CitySummary } from "./types";
 
-const themeTags = ["安静", "怀旧", "人文", "电影感", "城市漫游"];
-
 type HomePageProps = {
   cities: CitySummary[];
 };
@@ -34,21 +32,6 @@ export function HomePage({ cities }: HomePageProps) {
             </button>
           </div>
         </form>
-
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold">主题气质</h2>
-          <div className="flex flex-wrap gap-2">
-            {themeTags.map((tag) => (
-              <button
-                className="min-h-11 rounded-full border border-neutral-200 bg-white px-4 text-sm text-neutral-700"
-                key={tag}
-                type="button"
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </section>
 
         <section className="space-y-3">
           <h2 className="text-base font-semibold">精选城市</h2>
