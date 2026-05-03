@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { CitySummary } from "./types";
 
 type HomePageProps = {
@@ -37,7 +38,11 @@ export function HomePage({ cities }: HomePageProps) {
           <h2 className="text-base font-semibold">精选城市</h2>
           <div className="grid gap-3">
             {cities.map((city) => (
-              <article className="rounded-2xl border border-neutral-200 bg-white p-4" key={city.slug}>
+              <Link
+                className="rounded-2xl border border-neutral-200 bg-white p-4 transition hover:border-neutral-300"
+                href={`/city/${city.slug}`}
+                key={city.slug}
+              >
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-semibold">{city.nameZh}</h3>
@@ -47,7 +52,7 @@ export function HomePage({ cities }: HomePageProps) {
                     {city.contentDepth === "core" ? "核心" : "扩展"}
                   </span>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         </section>

@@ -166,11 +166,35 @@
 
 - `28e7209 docs: add weizhi slice backlog`
 
+### Task 9: 城市结果页第一切片
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/cities/repository.py`
+- `weizhi-app/backend/app/features/cities/router.py`
+- `weizhi-app/backend/tests/test_cities_api.py`
+- `weizhi-app/frontend/src/features/city/types.ts`
+- `weizhi-app/frontend/src/features/city/api.ts`
+- `weizhi-app/frontend/src/features/city/CityPage.tsx`
+- `weizhi-app/frontend/src/app/city/[slug]/page.tsx`
+- `weizhi-app/frontend/src/features/home/HomePage.tsx`
+
+说明：
+
+- 后端新增 `GET /api/cities/{city_slug}/recommendations`。
+- 前端新增 `/city/[slug]` 城市结果页。
+- 首页精选城市卡片可进入对应城市结果页。
+- 页面不包含搜索细分类入口。
+
+提交：
+
+- 待提交
+
 ## 最近验证结果
 
 最近一次总体验证：
 
-- 后端测试：`5 passed in 0.55s`
+- 后端测试：`7 passed in 0.55s`
 - 前端 lint：通过
 - 前端 build：通过
 - Git 工作区：干净
