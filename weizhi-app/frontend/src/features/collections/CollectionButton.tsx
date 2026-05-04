@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { AuthDialog, type SimulatedUser } from "@/features/auth/AuthDialog";
-import { readLocalUser, writeLocalUser } from "@/features/auth/localSession";
-import { addCollection, removeCollection } from "./api";
+import { useCallback, useEffect, useState } from "react";
+import { AuthDialog } from "@/features/auth/AuthDialog";
+import { getAuthSession, type AuthSession } from "@/features/auth/session";
+import { supabase } from "@/features/auth/supabaseClient";
+import { addCollection, getCollections, removeCollection } from "./api";
 import type { CollectionEntityType } from "./types";
 
 type CollectionButtonProps = {
@@ -15,24 +16,81 @@ type CollectionButtonProps = {
 type PendingAction = "collect" | null;
 
 export function CollectionButton({ citySlug, entityId, entityType }: CollectionButtonProps) {
-  const collectionKey = useMemo(
-    () => `weizhi.collection.${citySlug}.${entityType}.${entityId}`,
-    [citySlug, entityId, entityType],
-  );
-
-  const [currentUser, setCurrentUser] = useState<SimulatedUser | null>(() => readLocalUser());
-  const [isCollected, setIsCollected] = useState(() => readLocalCollection(collectionKey));
+  const [authSession, setAuthSession] = useState<AuthSession | null>(null);
+  const [isCollected, setIsCollected] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
 
-  async function collect(user: SimulatedUser) {
+  const syncCollectedState = useCallback(
+    async (accessToken: string) => {
+      try {
+        const collections = await getCollections(accessToken);
+        setIsCollected(
+          collections.items.some(
+            (item) =>
+              item.entityType === entityType &&
+              item.entityId === entityId &&
+              item.citySlug === citySlug,
+          ),
+        );
+      } catch {
+        setStatus("收藏状态暂时无法同步。");
+      }
+    },
+    [citySlug, entityId, entityType],
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    void getAuthSession()
+      .then((session) => {
+        if (isMounted) {
+          setAuthSession(session);
+          if (session) {
+            void syncCollectedState(session.accessToken);
+          }
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setStatus("登录状态暂时无法读取。");
+        }
+      });
+
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) {
+        return;
+      }
+
+      const nextSession = session
+        ? {
+            accessToken: session.access_token,
+            user: session.user,
+          }
+        : null;
+      setAuthSession(nextSession);
+      if (nextSession) {
+        void syncCollectedState(nextSession.accessToken);
+      } else {
+        setIsCollected(false);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      data.subscription.unsubscribe();
+    };
+  }, [syncCollectedState]);
+
+  async function collect(session: AuthSession) {
     setIsSaving(true);
     setStatus(null);
     try {
-      await addCollection(user.userId, { citySlug, entityId, entityType });
-      collectLocally();
+      await addCollection(session.accessToken, { citySlug, entityId, entityType });
+      setIsCollected(true);
     } catch {
       setStatus("收藏暂时没有同步成功，请稍后再试。");
     } finally {
@@ -40,12 +98,12 @@ export function CollectionButton({ citySlug, entityId, entityType }: CollectionB
     }
   }
 
-  async function remove(user: SimulatedUser) {
+  async function remove(session: AuthSession) {
     setIsSaving(true);
     setStatus(null);
     try {
-      await removeCollection(user.userId, entityType, entityId);
-      removeLocally();
+      await removeCollection(session.accessToken, entityType, entityId);
+      setIsCollected(false);
     } catch {
       setStatus("取消收藏暂时没有同步成功，请稍后再试。");
     } finally {
@@ -53,41 +111,31 @@ export function CollectionButton({ citySlug, entityId, entityType }: CollectionB
     }
   }
 
-  function collectLocally() {
-    window.localStorage.setItem(collectionKey, "true");
-    setIsCollected(true);
-  }
-
-  function removeLocally() {
-    window.localStorage.removeItem(collectionKey);
-    setIsCollected(false);
-  }
-
   async function handleClick() {
     if (isCollected) {
-      if (currentUser) {
-        await remove(currentUser);
+      if (authSession) {
+        await remove(authSession);
       } else {
-        removeLocally();
+        setIsCollected(false);
       }
       return;
     }
 
-    if (!currentUser) {
+    if (!authSession) {
       setPendingAction("collect");
       setIsAuthOpen(true);
       return;
     }
 
-    await collect(currentUser);
+    await collect(authSession);
   }
 
-  async function handleAuthenticated(user: SimulatedUser) {
-    writeLocalUser(user);
-    setCurrentUser(user);
+  async function handleAuthenticated() {
+    const nextSession = await getAuthSession();
+    setAuthSession(nextSession);
 
-    if (pendingAction === "collect") {
-      await collect(user);
+    if (pendingAction === "collect" && nextSession) {
+      await collect(nextSession);
       setPendingAction(null);
     }
 
@@ -117,12 +165,4 @@ export function CollectionButton({ citySlug, entityId, entityType }: CollectionB
       />
     </>
   );
-}
-
-function readLocalCollection(collectionKey: string) {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return window.localStorage.getItem(collectionKey) === "true";
 }

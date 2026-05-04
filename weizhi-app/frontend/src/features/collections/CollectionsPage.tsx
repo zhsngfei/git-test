@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { AuthDialog, type SimulatedUser } from "@/features/auth/AuthDialog";
-import { readLocalUser, writeLocalUser } from "@/features/auth/localSession";
+import { AuthDialog } from "@/features/auth/AuthDialog";
+import { getAuthSession, type AuthSession } from "@/features/auth/session";
+import { supabase } from "@/features/auth/supabaseClient";
 import { getPreparationBook } from "./api";
 import type { PreparationBook, PreparationCityGroup, PreparationWork } from "./types";
 
@@ -16,18 +17,18 @@ const CONTENT_TYPE_LABEL: Record<PreparationWork["contentType"], string> = {
 };
 
 export function CollectionsPage() {
-  const [currentUser, setCurrentUser] = useState<SimulatedUser | null>(() => readLocalUser());
+  const [authSession, setAuthSession] = useState<AuthSession | null>(null);
   const [book, setBook] = useState<PreparationBook | null>(null);
   const [activeTabByCity, setActiveTabByCity] = useState<Record<string, ActiveTab>>({});
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadPreparationBook = useCallback(async (userId: string) => {
+  const loadPreparationBook = useCallback(async (accessToken: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const nextBook = await getPreparationBook(userId);
+      const nextBook = await getPreparationBook(accessToken);
       setBook(nextBook);
     } catch {
       setError("暂时无法读取收藏准备册，请稍后再试。");
@@ -37,22 +38,55 @@ export function CollectionsPage() {
   }, []);
 
   useEffect(() => {
-    if (!currentUser) {
-      return;
-    }
+    let isMounted = true;
 
-    const timeoutId = window.setTimeout(() => {
-      void loadPreparationBook(currentUser.userId);
-    }, 0);
+    void getAuthSession()
+      .then((session) => {
+        if (!isMounted) {
+          return;
+        }
+        setAuthSession(session);
+        if (session) {
+          void loadPreparationBook(session.accessToken);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setError("暂时无法读取登录状态，请稍后再试。");
+        }
+      });
 
-    return () => window.clearTimeout(timeoutId);
-  }, [currentUser, loadPreparationBook]);
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) {
+        return;
+      }
+      const nextSession = session
+        ? {
+            accessToken: session.access_token,
+            user: session.user,
+          }
+        : null;
+      setAuthSession(nextSession);
+      if (nextSession) {
+        void loadPreparationBook(nextSession.accessToken);
+      } else {
+        setBook(null);
+      }
+    });
 
-  async function handleAuthenticated(user: SimulatedUser) {
-    writeLocalUser(user);
-    setCurrentUser(user);
+    return () => {
+      isMounted = false;
+      data.subscription.unsubscribe();
+    };
+  }, [loadPreparationBook]);
+
+  async function handleAuthenticated() {
+    const nextSession = await getAuthSession();
+    setAuthSession(nextSession);
     setIsAuthOpen(false);
-    await loadPreparationBook(user.userId);
+    if (nextSession) {
+      await loadPreparationBook(nextSession.accessToken);
+    }
   }
 
   function tabForCity(citySlug: string): ActiveTab {
@@ -72,11 +106,11 @@ export function CollectionsPage() {
           <p className="text-base leading-7 text-neutral-700">按城市整理已经收藏的作品和地点。</p>
         </header>
 
-        {!currentUser && !isLoading && (
+        {!authSession && !isLoading && (
           <section className="rounded-2xl border border-neutral-200 bg-white p-4">
             <h2 className="text-base font-semibold">登录后查看收藏</h2>
             <p className="mt-2 text-sm leading-6 text-neutral-600">
-              用邮箱继续后，可以查看当前设备保存的出发前准备内容。
+              用邮箱继续后，可以查看你的出发前准备内容。
             </p>
             <button
               className="mt-4 min-h-12 w-full rounded-xl bg-neutral-950 px-4 text-sm font-medium text-white"
@@ -91,7 +125,7 @@ export function CollectionsPage() {
         {isLoading && <p className="rounded-2xl border border-neutral-200 bg-white p-4 text-sm">正在整理收藏...</p>}
         {error && <p className="rounded-2xl border border-neutral-200 bg-white p-4 text-sm text-neutral-600">{error}</p>}
 
-        {currentUser && book?.cities.length === 0 && (
+        {authSession && book?.cities.length === 0 && (
           <section className="rounded-2xl border border-neutral-200 bg-white p-4">
             <h2 className="text-base font-semibold">还没有收藏</h2>
             <p className="mt-2 text-sm leading-6 text-neutral-600">先从城市页进入作品或地点，收藏后会出现在这里。</p>

@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 PLACEHOLDER_VALUES = {
     "https://example.supabase.co",
     "replace-with-service-role-key",
-    "replace-with-jwt-secret",
+    "replace-with-supabase-jwt-secret-at-least-32-characters",
     "https://api.example.com",
     "replace-with-mimoai-key",
 }
@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     frontend_origin: str = "http://localhost:3000"
     supabase_url: str = "https://example.supabase.co"
     supabase_service_role_key: str = "replace-with-service-role-key"
-    supabase_jwt_secret: str = "replace-with-jwt-secret"
+    supabase_jwt_secret: str = "replace-with-supabase-jwt-secret-at-least-32-characters"
     mimoai_api_base_url: str = "https://api.example.com"
     mimoai_api_key: str = "replace-with-mimoai-key"
 

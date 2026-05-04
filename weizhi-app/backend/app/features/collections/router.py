@@ -1,7 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Header, HTTPException, Response, status
+from fastapi import APIRouter, Depends, Response, status
 
+from app.features.auth.dependencies import AuthenticatedUser, get_current_user
 from app.features.collections.repository import (
     add_user_collection,
     build_preparation_book,
@@ -21,43 +22,31 @@ router = APIRouter(prefix="/api/collections", tags=["collections"])
 
 @router.get("")
 def get_collections(
-    user_id: Annotated[str | None, Header(alias="X-Weizhi-User-Id")] = None,
+    user: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> CollectionList:
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Authentication required")
-
-    return CollectionList(items=list_user_collections(user_id))
+    return CollectionList(items=list_user_collections(user.user_id))
 
 
 @router.get("/preparation")
 def get_preparation_book(
-    user_id: Annotated[str | None, Header(alias="X-Weizhi-User-Id")] = None,
+    user: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> PreparationBook:
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Authentication required")
-
-    return build_preparation_book(user_id)
+    return build_preparation_book(user.user_id)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 def create_collection(
     item: CollectionCreate,
-    user_id: Annotated[str | None, Header(alias="X-Weizhi-User-Id")] = None,
+    user: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> CollectionItem:
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Authentication required")
-
-    return add_user_collection(user_id, item)
+    return add_user_collection(user.user_id, item)
 
 
 @router.delete("/{entity_type}/{entity_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_collection(
     entity_type: EntityType,
     entity_id: str,
-    user_id: Annotated[str | None, Header(alias="X-Weizhi-User-Id")] = None,
+    user: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> Response:
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Authentication required")
-
-    delete_user_collection(user_id, entity_type, entity_id)
+    delete_user_collection(user.user_id, entity_type, entity_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

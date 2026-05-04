@@ -70,11 +70,34 @@ create table if not exists collections (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null,
   entity_type text not null check (entity_type in ('work', 'place')),
-  entity_id uuid not null,
-  city_id uuid not null references cities(id) on delete cascade,
+  entity_id text not null,
+  city_slug text not null references cities(slug) on delete cascade,
   created_at timestamptz not null default now(),
   unique(user_id, entity_type, entity_id)
 );
+
+alter table collections enable row level security;
+
+drop policy if exists "Users can read own collections" on collections;
+create policy "Users can read own collections"
+  on collections for select
+  using (user_id = auth.uid());
+
+drop policy if exists "Users can insert own collections" on collections;
+create policy "Users can insert own collections"
+  on collections for insert
+  with check (user_id = auth.uid());
+
+drop policy if exists "Users can update own collections" on collections;
+create policy "Users can update own collections"
+  on collections for update
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+drop policy if exists "Users can delete own collections" on collections;
+create policy "Users can delete own collections"
+  on collections for delete
+  using (user_id = auth.uid());
 
 create table if not exists recommendation_caches (
   id uuid primary key default gen_random_uuid(),

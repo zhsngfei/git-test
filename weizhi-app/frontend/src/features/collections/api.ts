@@ -8,10 +8,10 @@ import type {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
-function userHeaders(userId: string) {
+function authHeaders(accessToken: string) {
   return {
+    Authorization: `Bearer ${accessToken}`,
     "Content-Type": "application/json",
-    "X-Weizhi-User-Id": userId,
   };
 }
 
@@ -23,18 +23,18 @@ async function parseCollectionResponse<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function getCollections(userId: string): Promise<CollectionList> {
+export async function getCollections(accessToken: string): Promise<CollectionList> {
   const response = await fetch(`${API_BASE_URL}/api/collections`, {
-    headers: userHeaders(userId),
+    headers: authHeaders(accessToken),
     cache: "no-store",
   });
 
   return parseCollectionResponse<CollectionList>(response);
 }
 
-export async function getPreparationBook(userId: string): Promise<PreparationBook> {
+export async function getPreparationBook(accessToken: string): Promise<PreparationBook> {
   const response = await fetch(`${API_BASE_URL}/api/collections/preparation`, {
-    headers: userHeaders(userId),
+    headers: authHeaders(accessToken),
     cache: "no-store",
   });
 
@@ -42,12 +42,12 @@ export async function getPreparationBook(userId: string): Promise<PreparationBoo
 }
 
 export async function addCollection(
-  userId: string,
+  accessToken: string,
   collection: CollectionRequest,
 ): Promise<CollectionItem> {
   const response = await fetch(`${API_BASE_URL}/api/collections`, {
     method: "POST",
-    headers: userHeaders(userId),
+    headers: authHeaders(accessToken),
     body: JSON.stringify(collection),
   });
 
@@ -55,13 +55,13 @@ export async function addCollection(
 }
 
 export async function removeCollection(
-  userId: string,
+  accessToken: string,
   entityType: CollectionEntityType,
   entityId: string,
 ): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/collections/${entityType}/${entityId}`, {
     method: "DELETE",
-    headers: userHeaders(userId),
+    headers: authHeaders(accessToken),
   });
 
   if (!response.ok) {

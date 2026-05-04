@@ -1,21 +1,20 @@
 "use client";
 
 import { FormEvent, useId, useState } from "react";
-
-export type SimulatedUser = {
-  email: string;
-  userId: string;
-};
+import { supabase } from "./supabaseClient";
 
 type AuthDialogProps = {
   isOpen: boolean;
-  onAuthenticated: (user: SimulatedUser) => void;
+  onAuthenticated: () => void;
   onClose: () => void;
 };
 
 export function AuthDialog({ isOpen, onAuthenticated, onClose }: AuthDialogProps) {
   const emailInputId = useId();
+  const tokenInputId = useId();
   const [email, setEmail] = useState("");
+  const [token, setToken] = useState("");
+  const [isCodeSent, setIsCodeSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -23,7 +22,7 @@ export function AuthDialog({ isOpen, onAuthenticated, onClose }: AuthDialogProps
     return null;
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const trimmedEmail = email.trim();
@@ -33,13 +32,49 @@ export function AuthDialog({ isOpen, onAuthenticated, onClose }: AuthDialogProps
     }
 
     setIsSubmitting(true);
-    const user = {
-      email: trimmedEmail,
-      userId: `local-${trimmedEmail.toLowerCase()}`,
-    };
+    setStatus(null);
 
-    setStatus("已记录你的邮箱，本阶段会先在当前设备保留收藏状态。");
-    window.setTimeout(() => onAuthenticated(user), 450);
+    try {
+      if (!isCodeSent) {
+        const { error } = await supabase.auth.signInWithOtp({
+          email: trimmedEmail,
+          options: {
+            shouldCreateUser: true,
+          },
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        setIsCodeSent(true);
+        setStatus("验证码已发送，请查看邮箱。");
+        return;
+      }
+
+      const trimmedToken = token.trim();
+      if (!trimmedToken) {
+        setStatus("请输入邮箱验证码。");
+        return;
+      }
+
+      const { error } = await supabase.auth.verifyOtp({
+        email: trimmedEmail,
+        token: trimmedToken,
+        type: "email",
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setStatus("登录成功。");
+      onAuthenticated();
+    } catch {
+      setStatus("登录暂时没有成功，请检查邮箱或稍后重试。");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -84,6 +119,23 @@ export function AuthDialog({ isOpen, onAuthenticated, onClose }: AuthDialogProps
             />
           </div>
 
+          {isCodeSent && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-neutral-800" htmlFor={tokenInputId}>
+                邮箱验证码
+              </label>
+              <input
+                className="min-h-12 w-full rounded-xl border border-neutral-300 px-3 text-base outline-none transition focus:border-neutral-950"
+                id={tokenInputId}
+                inputMode="numeric"
+                disabled={isSubmitting}
+                onChange={(event) => setToken(event.target.value)}
+                placeholder="输入邮箱中的验证码"
+                value={token}
+              />
+            </div>
+          )}
+
           {status && <p className="text-sm leading-6 text-neutral-600">{status}</p>}
 
           <button
@@ -91,7 +143,7 @@ export function AuthDialog({ isOpen, onAuthenticated, onClose }: AuthDialogProps
             disabled={isSubmitting}
             type="submit"
           >
-            继续收藏
+            {isCodeSent ? "验证并继续" : "发送验证码"}
           </button>
         </form>
       </div>

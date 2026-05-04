@@ -342,14 +342,56 @@
 
 - 本切片提交：`chore: harden app launch readiness`
 
+### Task 15: Supabase Auth 与收藏持久化边界第一切片
+
+已创建/修改：
+
+- `weizhi-app/frontend/package.json`
+- `weizhi-app/frontend/package-lock.json`
+- `weizhi-app/frontend/src/features/auth/AuthDialog.tsx`
+- `weizhi-app/frontend/src/features/auth/supabaseClient.ts`
+- `weizhi-app/frontend/src/features/auth/session.ts`
+- `weizhi-app/frontend/src/features/auth/localSession.ts`
+- `weizhi-app/frontend/src/features/collections/api.ts`
+- `weizhi-app/frontend/src/features/collections/CollectionButton.tsx`
+- `weizhi-app/frontend/src/features/collections/CollectionsPage.tsx`
+- `weizhi-app/backend/pyproject.toml`
+- `weizhi-app/backend/.env.example`
+- `weizhi-app/backend/app/core/config.py`
+- `weizhi-app/backend/app/db/schema.sql`
+- `weizhi-app/backend/app/features/auth/dependencies.py`
+- `weizhi-app/backend/app/features/collections/router.py`
+- `weizhi-app/backend/app/features/collections/repository.py`
+- `weizhi-app/backend/tests/test_collections_api.py`
+- `weizhi-app/backend/tests/test_collections_repository.py`
+- `weizhi-app/docs/deployment.md`
+
+说明：
+
+- 前端安装 `@supabase/supabase-js`，位置为 `weizhi-app/frontend/node_modules/@supabase`，安装后 `node_modules` 约增加 6.81 MB。
+- 后端安装 `PyJWT`，位置为 `weizhi-app/backend/.venv/Lib/site-packages`，安装后 `.venv` 约增加 0.21 MB。
+- 前端登录弹窗从模拟邮箱登录改为 Supabase 邮箱 OTP：发送验证码并验证验证码。
+- 前端收藏 API 改为发送 `Authorization: Bearer <Supabase access_token>`。
+- 前端收藏按钮和收藏页不再读取 `localSession` 或传递 `userId`。
+- 后端收藏接口不再接受 `X-Weizhi-User-Id`，统一通过 Bearer JWT 提取用户身份。
+- JWT 校验要求 `exp`、`iss`、`aud`、`sub`，并要求 `role=authenticated`。
+- 非本地环境收藏仓储会通过 Supabase REST 写入/读取/删除 `collections` 表；本地测试仍使用内存仓储。
+- 数据库 schema 将 `collections.entity_id` 调整为文本 id，将 `city_id` 调整为 `city_slug`，匹配当前内容 slug 和收藏 API。
+- 数据库 schema 为 `collections` 启用 RLS，并添加用户只能读写自己收藏的 policies。
+- 部署文档补充了旧版 `collections` 表的迁移说明。
+
+提交：
+
+- 待提交
+
 ## 最近验证结果
 
 最近一次总体验证：
 
-- 后端测试：`19 passed in 0.72s`
+- 后端测试：`25 passed in 0.92s`
 - 前端 lint：通过。
 - 前端 type check：`npx tsc --noEmit` 通过。
-- 前端 build：`npm run build` 通过；普通权限因 Windows `.next` 写入 EPERM 失败，提升权限后通过。
+- 前端 build：`npm run build` 通过；本机 Windows 环境使用提升权限运行。
 - 旧细分类残留检查：应用源码、内容模板、产品规格和计划文档中无旧搜索细分类概念残留。
 - 3000 端口：未占用。
 - 8000 端口：未占用。
@@ -359,6 +401,7 @@
 
 - 前端 build 在当前 Windows 环境中可能因为 `.next` 文件写入权限失败，需要提升权限运行。
 - 后端 pytest 使用 `-p no:cacheprovider`，避免 pytest cache 在 Windows 权限下产生 warning 或挂起。
+- `npm install @supabase/supabase-js` 后 npm 报告 2 个 moderate vulnerabilities；`npm audit --audit-level=moderate` 本次运行超时，后续上线前需要单独完成依赖审计。
 
 ## 用户偏好和工作规则
 

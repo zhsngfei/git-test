@@ -36,7 +36,7 @@ APP_ENV=local
 FRONTEND_ORIGIN=http://localhost:3000
 SUPABASE_URL=https://example.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=replace-with-service-role-key
-SUPABASE_JWT_SECRET=replace-with-jwt-secret
+SUPABASE_JWT_SECRET=replace-with-supabase-jwt-secret-at-least-32-characters
 MIMOAI_API_BASE_URL=https://api.example.com
 MIMOAI_API_KEY=replace-with-mimoai-key
 ```
@@ -94,8 +94,42 @@ Get-ChildItem -Recurse -File "weizhi-app\backend\app","weizhi-app\frontend\src",
 - 未登录收藏时出现登录入口。
 - 登录后收藏页 `/collections` 可以读取准备册。
 
+## Supabase Schema Migration
+
+如果 Supabase 项目中还没有表，可以直接执行：
+
+```text
+weizhi-app/backend/app/db/schema.sql
+```
+
+如果 Supabase 项目中已经存在旧版 `collections` 表，不要只重复执行 `create table if not exists`。需要先迁移字段：
+
+```sql
+alter table collections
+  alter column entity_id type text using entity_id::text;
+
+alter table collections
+  add column if not exists city_slug text;
+
+update collections
+set city_slug = cities.slug
+from cities
+where collections.city_id = cities.id
+  and collections.city_slug is null;
+
+alter table collections
+  alter column city_slug set not null;
+
+alter table collections
+  drop column if exists city_id;
+```
+
+然后再执行 schema 中的 RLS policy 部分，确保 `collections` 只允许用户访问自己的收藏。
+
 ## 当前限制
 
-- Supabase Auth 还未替换临时本地登录状态。
+- Supabase Auth 前端和后端 JWT 边界已接入；真实运行前需要在 Supabase 项目中启用邮箱 OTP / magic link，并填入真实环境变量。
+- 收藏接口已改为 `Authorization: Bearer <Supabase access_token>`；旧 `X-Weizhi-User-Id` 不再作为认证方式。
+- 非本地环境下收藏仓储会使用 Supabase REST 写入 `collections` 表；本地测试仍使用内存仓储。
 - 推荐 provider 已保留 `mimoaiapi` 边界，但还没有调用真实外部服务。
 - UI/UX 视觉细调已暂时搁置，后续会在功能闭环稳定后进入专项微调。

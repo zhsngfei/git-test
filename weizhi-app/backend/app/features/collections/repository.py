@@ -1,3 +1,6 @@
+import httpx
+
+from app.core.config import settings
 from app.features.collections.schemas import (
     CollectionCreate,
     CollectionItem,
@@ -13,10 +16,16 @@ _collections_by_user: dict[str, list[CollectionItem]] = {}
 
 
 def list_user_collections(user_id: str) -> list[CollectionItem]:
+    if _should_use_supabase():
+        return _supabase_repository().list_user_collections(user_id)
+
     return _collections_by_user.get(user_id, [])
 
 
 def add_user_collection(user_id: str, item: CollectionCreate) -> CollectionItem:
+    if _should_use_supabase():
+        return _supabase_repository().add_user_collection(user_id, item)
+
     collection_item = CollectionItem(
         entityType=item.entityType,
         entityId=item.entityId,
@@ -42,6 +51,10 @@ def add_user_collection(user_id: str, item: CollectionCreate) -> CollectionItem:
 
 
 def delete_user_collection(user_id: str, entity_type: EntityType, entity_id: str) -> None:
+    if _should_use_supabase():
+        _supabase_repository().delete_user_collection(user_id, entity_type, entity_id)
+        return
+
     user_items = _collections_by_user.get(user_id, [])
     _collections_by_user[user_id] = [
         item
@@ -125,3 +138,99 @@ def _place_for_id(entity_id: str) -> PreparationPlace:
         entity_id,
         PreparationPlace(id=entity_id, slug=entity_id, nameZh=entity_id),
     )
+
+
+def _should_use_supabase() -> bool:
+    return settings.app_env != "local"
+
+
+def _supabase_repository() -> "SupabaseCollectionsRepository":
+    return SupabaseCollectionsRepository(
+        supabase_url=settings.supabase_url,
+        service_role_key=settings.supabase_service_role_key,
+    )
+
+
+class SupabaseCollectionsRepository:
+    def __init__(self, supabase_url: str, service_role_key: str) -> None:
+        self.base_url = f"{supabase_url.rstrip('/')}/rest/v1"
+        self.headers = {
+            "apikey": service_role_key,
+            "Authorization": f"Bearer {service_role_key}",
+            "Content-Type": "application/json",
+        }
+
+    def list_user_collections(self, user_id: str) -> list[CollectionItem]:
+        rows = self._request(
+            "GET",
+            "/collections",
+            params={
+                "select": "entity_type,entity_id,city_slug",
+                "user_id": f"eq.{user_id}",
+                "order": "created_at.asc",
+            },
+        )
+        return [
+            CollectionItem(
+                entityType=row["entity_type"],
+                entityId=row["entity_id"],
+                citySlug=row["city_slug"],
+            )
+            for row in rows
+        ]
+
+    def add_user_collection(self, user_id: str, item: CollectionCreate) -> CollectionItem:
+        rows = self._request(
+            "POST",
+            "/collections",
+            params={"on_conflict": "user_id,entity_type,entity_id"},
+            json=[
+                {
+                    "user_id": user_id,
+                    "entity_type": item.entityType,
+                    "entity_id": item.entityId,
+                    "city_slug": item.citySlug,
+                }
+            ],
+            extra_headers={"Prefer": "resolution=merge-duplicates,return=representation"},
+        )
+        row = rows[0]
+        return CollectionItem(
+            entityType=row["entity_type"],
+            entityId=row["entity_id"],
+            citySlug=row["city_slug"],
+        )
+
+    def delete_user_collection(self, user_id: str, entity_type: EntityType, entity_id: str) -> None:
+        self._request(
+            "DELETE",
+            "/collections",
+            params={
+                "user_id": f"eq.{user_id}",
+                "entity_type": f"eq.{entity_type}",
+                "entity_id": f"eq.{entity_id}",
+            },
+        )
+
+    def _request(
+        self,
+        method: str,
+        path: str,
+        *,
+        params: dict[str, str] | None = None,
+        json: object | None = None,
+        extra_headers: dict[str, str] | None = None,
+    ) -> object:
+        response = httpx.request(
+            method,
+            f"{self.base_url}{path}",
+            headers={**self.headers, **(extra_headers or {})},
+            params=params,
+            json=json,
+            timeout=10.0,
+        )
+        response.raise_for_status()
+        if response.status_code == 204:
+            return []
+
+        return response.json()
