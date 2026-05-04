@@ -1,6 +1,6 @@
 # 未至项目状态
 
-更新时间：2026-05-02
+更新时间：2026-05-04
 
 ## 当前目标
 
@@ -309,19 +309,51 @@
 
 提交：
 
-- 待提交
+- `ae27e41 feat: add controlled city recommendations`
+
+### Task 14: 上线质量第一切片
+
+已创建/修改：
+
+- `weizhi-app/frontend/src/app/layout.tsx`
+- `weizhi-app/frontend/src/app/manifest.ts`
+- `weizhi-app/frontend/src/app/loading.tsx`
+- `weizhi-app/frontend/src/app/error.tsx`
+- `weizhi-app/frontend/src/app/not-found.tsx`
+- `weizhi-app/frontend/public/icons/icon-192.png`
+- `weizhi-app/frontend/public/icons/icon-512.png`
+- `weizhi-app/frontend/public/icons/icon-maskable-512.png`
+- `weizhi-app/backend/.env.example`
+- `weizhi-app/backend/app/core/config.py`
+- `weizhi-app/backend/app/main.py`
+- `weizhi-app/backend/tests/test_health.py`
+- `weizhi-app/docs/deployment.md`
+
+说明：
+
+- 前端新增 PWA metadata、manifest、全局 loading、全局错误页和 404 页面。
+- 前端新增 192/512/maskable PWA PNG 图标，避免只依赖 favicon。
+- 后端新增 `FRONTEND_ORIGIN` 配置和 CORS 中间件。
+- `GET /health` 现在返回 `status` 和 `appEnv`，用于上线 smoke test。
+- 后端配置在本地允许占位值，非本地环境会拒绝占位 secret，避免生产环境误启动。
+- 新增上线准备说明，集中记录环境变量、验证命令和 smoke test。
+
+提交：
+
+- 本切片提交：`chore: harden app launch readiness`
 
 ## 最近验证结果
 
 最近一次总体验证：
 
-- 后端测试：`17 passed in 0.69s`
-- 前端 lint：通过
-- 前端 build：通过
-- Git 工作区：干净
-- 3000 端口：未占用
-- 8000 端口：未占用
-- 没有残留的项目 `node/npm/python` 进程
+- 后端测试：`19 passed in 0.72s`
+- 前端 lint：通过。
+- 前端 type check：`npx tsc --noEmit` 通过。
+- 前端 build：`npm run build` 通过；普通权限因 Windows `.next` 写入 EPERM 失败，提升权限后通过。
+- 旧细分类残留检查：应用源码、内容模板、产品规格和计划文档中无旧搜索细分类概念残留。
+- 3000 端口：未占用。
+- 8000 端口：未占用。
+- 项目临时 `python/node` 进程：未残留。
 
 注意：
 
@@ -357,27 +389,9 @@ netstat -ano | findstr ":8000"
 
 ## 下一步建议
 
-建议进入 UI/UX 稿阶段，而不是继续直接写城市结果页代码。
+完成上线质量第一切片后，建议进入真实上线前的“收口阶段”：
 
-应先产出：
-
-- 首页 UX/UI 稿。
-- 城市结果页 UX/UI 稿。
-- 作品详情页 UX/UI 稿。
-- 地点详情页 UX/UI 稿。
-- 收藏准备册 UX/UI 稿。
-
-形式建议：
-
-- 先做本地 HTML 低/中保真视觉稿。
-- 确认信息架构、布局节奏和现代城市笔记感。
-- 再继续实现 Slice 2 城市结果页。
-
-后续功能切片：
-
-1. 城市结果页。
-2. 作品详情与地点触点。
-3. 登录与收藏。
-4. 收藏准备册。
-5. mimoaiapi 推荐。
-6. 上线质量。
+1. 接入 Supabase Auth，替换当前临时本地登录和 `X-Weizhi-User-Id`。
+2. 将内存/临时数据源替换为 Supabase PostgreSQL 查询。
+3. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
+4. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。

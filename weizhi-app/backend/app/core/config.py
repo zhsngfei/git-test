@@ -1,15 +1,43 @@
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+PLACEHOLDER_VALUES = {
+    "https://example.supabase.co",
+    "replace-with-service-role-key",
+    "replace-with-jwt-secret",
+    "https://api.example.com",
+    "replace-with-mimoai-key",
+}
 
 
 class Settings(BaseSettings):
     app_env: str = "local"
-    supabase_url: str
-    supabase_service_role_key: str
-    supabase_jwt_secret: str
-    mimoai_api_base_url: str
-    mimoai_api_key: str
+    frontend_origin: str = "http://localhost:3000"
+    supabase_url: str = "https://example.supabase.co"
+    supabase_service_role_key: str = "replace-with-service-role-key"
+    supabase_jwt_secret: str = "replace-with-jwt-secret"
+    mimoai_api_base_url: str = "https://api.example.com"
+    mimoai_api_key: str = "replace-with-mimoai-key"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    @model_validator(mode="after")
+    def reject_production_placeholders(self) -> "Settings":
+        if self.app_env == "local":
+            return self
+
+        production_values = {
+            self.supabase_url,
+            self.supabase_service_role_key,
+            self.supabase_jwt_secret,
+            self.mimoai_api_base_url,
+            self.mimoai_api_key,
+        }
+        if production_values & PLACEHOLDER_VALUES:
+            raise ValueError("Production settings must not use placeholder values")
+
+        return self
 
 
 settings = Settings()  # type: ignore[call-arg]
