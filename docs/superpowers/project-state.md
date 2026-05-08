@@ -473,7 +473,7 @@
 
 提交：
 
-- 待提交
+- `de24c40 feat: add supabase cities list repository`
 
 ## 最近验证结果
 
