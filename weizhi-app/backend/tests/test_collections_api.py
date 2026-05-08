@@ -86,6 +86,42 @@ def test_collections_reject_token_with_wrong_role() -> None:
     assert response.status_code == 401
 
 
+def test_local_dev_auth_token_can_access_collections_without_supabase_keys() -> None:
+    client = TestClient(app)
+
+    auth_response = client.post(
+        "/api/dev/auth/session",
+        json={"email": "reader@example.com"},
+    )
+
+    assert auth_response.status_code == 201
+    auth_payload = auth_response.json()
+    assert auth_payload["user"]["email"] == "reader@example.com"
+    assert auth_payload["user"]["id"]
+    assert "replace-with-service-role-key" not in auth_response.text
+    assert "replace-with-supabase-jwt-secret" not in auth_response.text
+
+    headers = {"Authorization": f"Bearer {auth_payload['accessToken']}"}
+    create_response = client.post(
+        "/api/collections",
+        headers=headers,
+        json={"entityType": "place", "entityId": "shinjuku", "citySlug": "tokyo"},
+    )
+    list_response = client.get("/api/collections", headers=headers)
+
+    assert create_response.status_code == 201
+    assert list_response.status_code == 200
+    assert list_response.json()["items"][0]["entityId"] == "shinjuku"
+
+
+def test_local_dev_auth_rejects_empty_email() -> None:
+    client = TestClient(app)
+
+    response = client.post("/api/dev/auth/session", json={"email": ""})
+
+    assert response.status_code == 422
+
+
 def test_user_can_create_and_list_collections() -> None:
     client = TestClient(app)
     headers = auth_headers("user-collections-create")

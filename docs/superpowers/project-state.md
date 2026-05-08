@@ -402,7 +402,7 @@
 
 提交：
 
-- 待提交
+- `6af519e docs: add supabase setup guide`
 
 ### Task 17: 上线配置就绪状态接口
 
@@ -423,9 +423,46 @@
 
 提交：
 
+- `f57b010 feat: expose readiness configuration status`
+
+### Task 18: 无密钥本地登录到收藏闭环
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/auth/router.py`
+- `weizhi-app/backend/app/main.py`
+- `weizhi-app/backend/tests/test_collections_api.py`
+- `weizhi-app/frontend/src/features/auth/devAuth.ts`
+- `weizhi-app/frontend/src/features/auth/supabaseClient.ts`
+- `weizhi-app/frontend/src/features/auth/session.ts`
+- `weizhi-app/frontend/src/features/auth/AuthDialog.tsx`
+- `weizhi-app/frontend/src/features/collections/CollectionButton.tsx`
+- `weizhi-app/frontend/src/features/collections/CollectionsPage.tsx`
+- `weizhi-app/docs/supabase-setup.md`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- 新增本地开发登录接口 `POST /api/dev/auth/session`，在 `APP_ENV=local` 时签发本地 JWT。
+- 本地 dev auth token 使用和收藏接口一致的 Bearer JWT 校验链路，能验证登录态、收藏写入和准备册读取。
+- 前端在 Supabase URL / key 仍为占位值时，不再误连 `example.supabase.co`，而是调用本地 dev auth endpoint。
+- 本地 dev session 存在浏览器 localStorage，仅用于无密钥开发验证；真实上线仍必须配置 Supabase Auth。
+- 该切片没有新增 Python 或 npm 依赖。
+
+提交：
+
 - 待提交
 
 ## 最近验证结果
+
+Task 18 无密钥本地登录闭环验证：
+
+- 后端局部测试：`tests/test_collections_api.py`，`9 passed in 0.73s`
+- 后端完整测试：`28 passed in 0.93s`
+- 前端 lint：通过。
+- 前端 type check：`npx tsc --noEmit` 通过。
+- 前端 build：`npm run build` 通过；第一次因 Windows `.next` 旧文件 unlink 权限失败，清理 `.next` 后提升权限重跑通过。
 
 Task 17 配置就绪状态接口验证：
 

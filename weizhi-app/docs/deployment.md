@@ -143,3 +143,4 @@ alter table collections
 - 推荐 provider 已保留 `mimoaiapi` 边界，但还没有调用真实外部服务。
 - UI/UX 视觉细调已暂时搁置，后续会在功能闭环稳定后进入专项微调。
 - 真实 Supabase smoke test 还未执行，因为项目 URL、前端公开 key、后端 service role key 和 JWT secret 尚未提供。
+- 无真实 Supabase 配置时，本地开发环境可以通过 `POST /api/dev/auth/session` 创建本地会话，用于验证登录到收藏闭环；该路径只服务本地开发，不代表生产登录完成。

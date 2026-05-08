@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AuthDialog } from "@/features/auth/AuthDialog";
 import { getAuthSession, type AuthSession } from "@/features/auth/session";
-import { supabase } from "@/features/auth/supabaseClient";
+import { isSupabaseConfigured, supabase } from "@/features/auth/supabaseClient";
 import { getPreparationBook } from "./api";
 import type { PreparationBook, PreparationCityGroup, PreparationWork } from "./types";
 
@@ -55,6 +55,12 @@ export function CollectionsPage() {
           setError("暂时无法读取登录状态，请稍后再试。");
         }
       });
+
+    if (!isSupabaseConfigured) {
+      return () => {
+        isMounted = false;
+      };
+    }
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!isMounted) {

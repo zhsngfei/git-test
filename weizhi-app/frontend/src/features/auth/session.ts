@@ -1,14 +1,22 @@
 "use client";
 
-import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "./supabaseClient";
+import type { Session } from "@supabase/supabase-js";
+import { getStoredDevSession } from "./devAuth";
+import { isSupabaseConfigured, supabase } from "./supabaseClient";
 
 export type AuthSession = {
   accessToken: string;
-  user: User;
+  user: {
+    id: string;
+    email?: string | null;
+  };
 };
 
 export async function getAuthSession(): Promise<AuthSession | null> {
+  if (!isSupabaseConfigured) {
+    return getStoredDevSession();
+  }
+
   const { data, error } = await supabase.auth.getSession();
 
   if (error) {

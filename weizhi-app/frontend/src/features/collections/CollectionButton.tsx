@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AuthDialog } from "@/features/auth/AuthDialog";
 import { getAuthSession, type AuthSession } from "@/features/auth/session";
-import { supabase } from "@/features/auth/supabaseClient";
+import { isSupabaseConfigured, supabase } from "@/features/auth/supabaseClient";
 import { addCollection, getCollections, removeCollection } from "./api";
 import type { CollectionEntityType } from "./types";
 
@@ -59,6 +59,12 @@ export function CollectionButton({ citySlug, entityId, entityType }: CollectionB
           setStatus("登录状态暂时无法读取。");
         }
       });
+
+    if (!isSupabaseConfigured) {
+      return () => {
+        isMounted = false;
+      };
+    }
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!isMounted) {

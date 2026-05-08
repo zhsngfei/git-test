@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, useId, useState } from "react";
-import { supabase } from "./supabaseClient";
+import { createDevSession } from "./devAuth";
+import { isSupabaseConfigured, supabase } from "./supabaseClient";
 
 type AuthDialogProps = {
   isOpen: boolean;
@@ -35,6 +36,13 @@ export function AuthDialog({ isOpen, onAuthenticated, onClose }: AuthDialogProps
     setStatus(null);
 
     try {
+      if (!isSupabaseConfigured) {
+        await createDevSession(trimmedEmail);
+        setStatus("本地开发登录成功。");
+        onAuthenticated();
+        return;
+      }
+
       if (!isCodeSent) {
         const { error } = await supabase.auth.signInWithOtp({
           email: trimmedEmail,
@@ -90,7 +98,11 @@ export function AuthDialog({ isOpen, onAuthenticated, onClose }: AuthDialogProps
             <h2 className="text-lg font-semibold text-neutral-950" id="auth-dialog-title">
               登录后收藏
             </h2>
-            <p className="text-sm leading-6 text-neutral-600">输入邮箱即可继续当前收藏动作。</p>
+            <p className="text-sm leading-6 text-neutral-600">
+              {isSupabaseConfigured
+                ? "输入邮箱即可继续当前收藏动作。"
+                : "当前是本地开发登录，用邮箱创建本地会话。"}
+            </p>
           </div>
           <button
             aria-label="关闭登录弹窗"
@@ -119,7 +131,7 @@ export function AuthDialog({ isOpen, onAuthenticated, onClose }: AuthDialogProps
             />
           </div>
 
-          {isCodeSent && (
+          {isSupabaseConfigured && isCodeSent && (
             <div className="space-y-2">
               <label className="text-sm font-medium text-neutral-800" htmlFor={tokenInputId}>
                 邮箱验证码
@@ -143,7 +155,7 @@ export function AuthDialog({ isOpen, onAuthenticated, onClose }: AuthDialogProps
             disabled={isSubmitting}
             type="submit"
           >
-            {isCodeSent ? "验证并继续" : "发送验证码"}
+            {!isSupabaseConfigured ? "本地登录并继续" : isCodeSent ? "验证并继续" : "发送验证码"}
           </button>
         </form>
       </div>

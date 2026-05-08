@@ -120,6 +120,16 @@ alter table collections
 
 ## 本地联调顺序
 
+如果你还没有真实 Supabase 配置，可以先用本地开发登录验证收藏闭环：
+
+- 保持前端 `.env.local` 中的 Supabase URL / key 为占位值，或暂时不创建 `.env.local`。
+- 保持后端 `APP_ENV=local`。
+- 前端登录弹窗会调用 `POST /api/dev/auth/session` 创建本地开发会话。
+- 后端收藏接口仍然校验 Bearer JWT，但收藏数据写入本地内存仓储，不写 Supabase。
+- 这只用于本地验证，不代表真实上线登录已经完成。
+
+真实 Supabase 联调顺序：
+
 1. 填写 `frontend\.env.local`。
 2. 填写 `backend\.env`。
 3. 在 Supabase SQL Editor 执行 schema。
