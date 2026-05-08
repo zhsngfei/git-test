@@ -382,14 +382,37 @@
 
 提交：
 
+- `3b59a00 feat: add supabase auth collections boundary`
+
+### Task 16: Supabase 真实接入准备说明
+
+已创建/修改：
+
+- `weizhi-app/docs/supabase-setup.md`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- 新增 Supabase 接入说明，记录真实项目需要提供的前端公开 key、后端 service role key、JWT secret 和本地文件位置。
+- 明确不需要用户提供 Supabase 账号密码；只需要项目配置值，且 secret 不能提交到 Git。
+- 明确本地真实联调需要使用 `APP_ENV=staging`，因为 `APP_ENV=local` 会继续使用内存收藏仓储。
+- 部署文档新增 Supabase setup 文档入口和 secret 安全提醒。
+- 当前还没有执行真实 Supabase smoke test，因为真实项目配置尚未提供。
+
+提交：
+
 - 待提交
 
 ## 最近验证结果
 
+Task 16 文档切片验证：
+
+- 后端测试：`25 passed in 0.75s`
+- 前端 lint：通过。
+
 最近一次总体验证：
 
-- 后端测试：`25 passed in 0.92s`
-- 前端 lint：通过。
 - 前端 type check：`npx tsc --noEmit` 通过。
 - 前端 build：`npm run build` 通过；本机 Windows 环境使用提升权限运行。
 - 旧细分类残留检查：应用源码、内容模板、产品规格和计划文档中无旧搜索细分类概念残留。
@@ -434,7 +457,8 @@ netstat -ano | findstr ":8000"
 
 完成上线质量第一切片后，建议进入真实上线前的“收口阶段”：
 
-1. 接入 Supabase Auth，替换当前临时本地登录和 `X-Weizhi-User-Id`。
-2. 将内存/临时数据源替换为 Supabase PostgreSQL 查询。
-3. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
-4. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。
+1. 获取并填写真实 Supabase 项目环境变量。
+2. 在 Supabase 执行 schema，并验证邮箱 OTP 登录和收藏写入。
+3. 将内容数据查询从当前仓储边界继续推进到 Supabase PostgreSQL。
+4. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
+5. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。

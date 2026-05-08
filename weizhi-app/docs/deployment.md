@@ -49,6 +49,14 @@ MIMOAI_API_KEY=replace-with-mimoai-key
 - `SUPABASE_JWT_SECRET`：后续替换临时登录头时用于 JWT 校验。
 - `MIMOAI_API_BASE_URL`、`MIMOAI_API_KEY`：后续接入真实 `mimoaiapi` 时使用。
 
+Supabase 真实接入步骤集中记录在：
+
+```text
+weizhi-app/docs/supabase-setup.md
+```
+
+不要把 `SUPABASE_SERVICE_ROLE_KEY` 或 `SUPABASE_JWT_SECRET` 粘贴进前端代码、截图或提交文件。
+
 ## 本地验证命令
 
 PWA 图标文件：
@@ -133,3 +141,4 @@ alter table collections
 - 非本地环境下收藏仓储会使用 Supabase REST 写入 `collections` 表；本地测试仍使用内存仓储。
 - 推荐 provider 已保留 `mimoaiapi` 边界，但还没有调用真实外部服务。
 - UI/UX 视觉细调已暂时搁置，后续会在功能闭环稳定后进入专项微调。
+- 真实 Supabase smoke test 还未执行，因为项目 URL、前端公开 key、后端 service role key 和 JWT secret 尚未提供。
