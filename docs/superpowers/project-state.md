@@ -475,7 +475,35 @@
 
 - `de24c40 feat: add supabase cities list repository`
 
+### Task 20: 城市推荐页 Supabase 聚合读取边界
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/cities/repository.py`
+- `weizhi-app/backend/tests/test_cities_repository.py`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- `GET /api/cities/{city_slug}/recommendations` 在 `APP_ENV=local` 时继续使用本地 seed，方便无密钥开发。
+- 非 `local` 环境会通过 Supabase REST 读取 `cities`、`work_city_relations`、`works`、`places`、`work_place_relations` 并聚合成现有前端契约。
+- 聚合读取只纳入 `review_status in (reviewed,published)` 的作品关系、作品、地点和地点关系，避免草稿内容进入推荐页。
+- API 响应继续使用前端已有字段：`titleZh`、`contentType`、`summary`、`nameZh`、`placeCount`、`relatedWorkCount`。
+- 当前实现阶段不需要真实 Supabase 配置；真实联调仍需要用户提供 `SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`，并确保 schema 和内容数据已准备。
+
+提交：
+
+- 待提交
+
 ## 最近验证结果
+
+Task 20 城市推荐页 Supabase 聚合读取边界验证：
+
+- 后端局部测试：`tests/test_cities_repository.py tests/test_cities_api.py`，`7 passed in 0.51s`
+- 后端完整测试：`32 passed in 0.73s`
+- 前端 lint：通过。
+- 前端 type check：`npx tsc --noEmit` 通过。
 
 Task 19 城市列表 Supabase 读取边界验证：
 

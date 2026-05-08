@@ -140,6 +140,7 @@ alter table collections
 - Supabase Auth 前端和后端 JWT 边界已接入；真实运行前需要在 Supabase 项目中启用邮箱 OTP / magic link，并填入真实环境变量。
 - 收藏接口已改为 `Authorization: Bearer <Supabase access_token>`；旧 `X-Weizhi-User-Id` 不再作为认证方式。
 - 非本地环境下城市列表 `GET /api/cities` 会使用 Supabase REST 读取 `cities` 表；本地环境仍使用 seed 数据。
+- 非本地环境下城市推荐页 `GET /api/cities/{city_slug}/recommendations` 会从 Supabase REST 聚合读取 `cities`、`work_city_relations`、`works`、`places`、`work_place_relations`；本地环境仍使用 seed 数据。
 - 非本地环境下收藏仓储会使用 Supabase REST 写入 `collections` 表；本地测试仍使用内存仓储。
 - 推荐 provider 已保留 `mimoaiapi` 边界，但还没有调用真实外部服务。
 - UI/UX 视觉细调已暂时搁置，后续会在功能闭环稳定后进入专项微调。

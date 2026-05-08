@@ -28,6 +28,9 @@ def list_supported_cities() -> list[dict[str, str | bool]]:
 
 
 def get_city_recommendations(city_slug: str) -> dict[str, object] | None:
+    if _should_use_supabase():
+        return _supabase_repository().get_city_recommendations(city_slug)
+
     recommendations: dict[str, dict[str, object]] = {
         "kyoto": {
             "city": {
@@ -185,6 +188,117 @@ class SupabaseCitiesRepository:
             for row in rows
         ]
 
+    def get_city_recommendations(self, city_slug: str) -> dict[str, object] | None:
+        city_rows = self._request(
+            "GET",
+            "/cities",
+            params={
+                "select": "id,slug,name_zh,country_region,tone_summary",
+                "slug": f"eq.{city_slug}",
+                "is_supported": "eq.true",
+                "limit": "1",
+            },
+        )
+        if not city_rows:
+            return None
+
+        city = city_rows[0]
+        city_id = city["id"]
+        relation_rows = self._request(
+            "GET",
+            "/work_city_relations",
+            params={
+                "select": "work_id,recommendation_note",
+                "city_id": f"eq.{city_id}",
+                "review_status": "in.(reviewed,published)",
+                "order": "id.asc",
+            },
+        )
+        work_ids = [row["work_id"] for row in relation_rows]
+        if work_ids:
+            work_rows = self._request(
+                "GET",
+                "/works",
+                params={
+                    "select": "id,slug,title,work_type,creator,synopsis",
+                    "id": f"in.({_comma_join(work_ids)})",
+                    "review_status": "in.(reviewed,published)",
+                },
+            )
+        else:
+            work_rows = []
+        place_rows = self._request(
+            "GET",
+            "/places",
+            params={
+                "select": "id,slug,name,intro",
+                "city_id": f"eq.{city_id}",
+                "review_status": "in.(reviewed,published)",
+                "order": "name.asc",
+            },
+        )
+        if work_ids:
+            relation_place_rows = self._request(
+                "GET",
+                "/work_place_relations",
+                params={
+                    "select": "work_id,place_id",
+                    "work_id": f"in.({_comma_join(work_ids)})",
+                    "review_status": "in.(reviewed,published)",
+                },
+            )
+        else:
+            relation_place_rows = []
+
+        notes_by_work_id = {
+            relation["work_id"]: relation["recommendation_note"] for relation in relation_rows
+        }
+        place_count_by_work_id: dict[str, int] = {}
+        related_count_by_place_id: dict[str, int] = {}
+        for relation in relation_place_rows:
+            place_count_by_work_id[relation["work_id"]] = (
+                place_count_by_work_id.get(relation["work_id"], 0) + 1
+            )
+            related_count_by_place_id[relation["place_id"]] = (
+                related_count_by_place_id.get(relation["place_id"], 0) + 1
+            )
+
+        works = [
+            _map_work_for_city_page(
+                row,
+                notes_by_work_id.get(row["id"]) or row["synopsis"],
+                place_count_by_work_id.get(row["id"], 0),
+            )
+            for row in work_rows
+        ]
+        places = [
+            {
+                "id": row["slug"],
+                "slug": row["slug"],
+                "nameZh": row["name"],
+                "summary": row["intro"],
+                "relatedWorkCount": related_count_by_place_id.get(row["id"], 0),
+            }
+            for row in place_rows
+        ]
+
+        return {
+            "city": {
+                "slug": city["slug"],
+                "nameZh": city["name_zh"],
+                "countryRegion": city["country_region"],
+                "intro": city.get("tone_summary") or "",
+            },
+            "contentTypes": [
+                {"value": "all", "label": "全部"},
+                {"value": "book", "label": "书籍"},
+                {"value": "film", "label": "电影"},
+            ],
+            "featuredWork": works[0] if works else None,
+            "works": works,
+            "places": places,
+        }
+
     def _request(
         self,
         method: str,
@@ -201,3 +315,23 @@ class SupabaseCitiesRepository:
         )
         response.raise_for_status()
         return response.json()
+
+
+def _comma_join(values: list[str]) -> str:
+    return ",".join(values)
+
+
+def _map_work_for_city_page(
+    row: dict[str, object],
+    summary: str,
+    place_count: int,
+) -> dict[str, object]:
+    return {
+        "id": row["slug"],
+        "slug": row["slug"],
+        "titleZh": row["title"],
+        "contentType": row["work_type"],
+        "creator": row.get("creator") or "",
+        "summary": summary,
+        "placeCount": place_count,
+    }
