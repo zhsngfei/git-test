@@ -94,6 +94,7 @@ Get-ChildItem -Recurse -File "weizhi-app\backend\app","weizhi-app\frontend\src",
 上线前至少检查：
 
 - `GET /health` 返回 `status=ok` 和当前 `appEnv`。
+- `GET /health/readiness` 返回 Supabase Auth、收藏仓储和 `mimoaiapi` 的配置状态；响应只显示 `placeholder` / `configured` / `memory` / `supabase_rest`，不能包含任何 secret。
 - 从前端域名发起的 CORS preflight 可以通过。
 - 首页可以打开并显示城市内容。
 - `/city/tokyo` 可以打开并显示推荐分组状态。

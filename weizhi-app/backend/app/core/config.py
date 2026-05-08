@@ -39,5 +39,25 @@ class Settings(BaseSettings):
 
         return self
 
+    def supabase_auth_status(self) -> str:
+        required_values = {
+            self.supabase_url,
+            self.supabase_jwt_secret,
+        }
+        return "placeholder" if required_values & PLACEHOLDER_VALUES else "configured"
+
+    def supabase_collections_storage(self) -> str:
+        if self.app_env == "local":
+            return "memory"
+
+        return "supabase_rest"
+
+    def mimoai_status(self) -> str:
+        required_values = {
+            self.mimoai_api_base_url,
+            self.mimoai_api_key,
+        }
+        return "placeholder" if required_values & PLACEHOLDER_VALUES else "configured"
+
 
 settings = Settings()  # type: ignore[call-arg]

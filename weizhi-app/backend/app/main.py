@@ -26,3 +26,16 @@ app.include_router(recommendations_router)
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "appEnv": settings.app_env}
+
+
+@app.get("/health/readiness")
+def readiness() -> dict[str, object]:
+    return {
+        "status": "ok",
+        "appEnv": settings.app_env,
+        "services": {
+            "supabaseAuth": settings.supabase_auth_status(),
+            "supabaseCollections": settings.supabase_collections_storage(),
+            "mimoai": settings.mimoai_status(),
+        },
+    }

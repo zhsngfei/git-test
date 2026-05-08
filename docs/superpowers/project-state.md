@@ -404,7 +404,33 @@
 
 - 待提交
 
+### Task 17: 上线配置就绪状态接口
+
+已创建/修改：
+
+- `weizhi-app/backend/app/core/config.py`
+- `weizhi-app/backend/app/main.py`
+- `weizhi-app/backend/tests/test_health.py`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- 新增 `GET /health/readiness`，用于上线前检查 Supabase Auth、收藏仓储和 `mimoaiapi` 的配置状态。
+- 响应只返回 `placeholder`、`configured`、`memory`、`supabase_rest` 这类安全状态，不返回 URL、key、JWT secret 或 service role key。
+- 本地默认状态为 Supabase Auth `placeholder`、收藏仓储 `memory`、`mimoaiapi` `placeholder`。
+- 该切片不需要真实 Supabase 配置；后续填入真实配置后，可用同一接口做 smoke test。
+
+提交：
+
+- 待提交
+
 ## 最近验证结果
+
+Task 17 配置就绪状态接口验证：
+
+- 后端局部测试：`tests/test_health.py`，`4 passed in 0.53s`
+- 后端完整测试：`26 passed in 0.84s`
 
 Task 16 文档切片验证：
 

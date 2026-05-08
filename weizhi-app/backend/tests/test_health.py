@@ -15,6 +15,26 @@ def test_health_returns_ok() -> None:
     assert response.json()["appEnv"] == "local"
 
 
+def test_readiness_reports_local_placeholder_state_without_secrets() -> None:
+    client = TestClient(app)
+    response = client.get("/health/readiness")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body == {
+        "status": "ok",
+        "appEnv": "local",
+        "services": {
+            "supabaseAuth": "placeholder",
+            "supabaseCollections": "memory",
+            "mimoai": "placeholder",
+        },
+    }
+    response_text = response.text
+    assert "replace-with-service-role-key" not in response_text
+    assert "replace-with-supabase-jwt-secret" not in response_text
+
+
 def test_cors_allows_configured_frontend_origin() -> None:
     client = TestClient(app)
     response = client.options(
