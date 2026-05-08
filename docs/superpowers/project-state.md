@@ -452,9 +452,37 @@
 
 提交：
 
+- `6c886aa feat: add local dev auth collection flow`
+
+### Task 19: 城市列表 Supabase 读取边界
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/cities/repository.py`
+- `weizhi-app/backend/tests/test_cities_repository.py`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- `GET /api/cities` 在 `APP_ENV=local` 时继续使用本地 seed，方便无密钥开发。
+- 非 `local` 环境会通过 Supabase REST 读取 `cities` 表中 `is_supported=true` 的城市。
+- 新增 `SupabaseCitiesRepository`，统一封装 Supabase REST URL、service role 请求头、字段映射。
+- 新增仓储测试，用 monkeypatch 模拟 Supabase REST 响应，验证请求参数和响应字段映射，不需要真实 Supabase 配置。
+- 真实联调或上线仍需要用户提供 `SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`，并确保 Supabase 已执行 schema 且导入城市数据。
+
+提交：
+
 - 待提交
 
 ## 最近验证结果
+
+Task 19 城市列表 Supabase 读取边界验证：
+
+- 后端局部测试：`tests/test_cities_repository.py tests/test_cities_api.py`，`4 passed in 0.57s`
+- 后端完整测试：`29 passed in 0.96s`
+- 前端 lint：通过。
+- 前端 type check：`npx tsc --noEmit` 通过。
 
 Task 18 无密钥本地登录闭环验证：
 

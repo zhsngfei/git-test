@@ -1,4 +1,12 @@
+import httpx
+
+from app.core.config import settings
+
+
 def list_supported_cities() -> list[dict[str, str | bool]]:
+    if _should_use_supabase():
+        return _supabase_repository().list_supported_cities()
+
     return [
         {
             "slug": "kyoto",
@@ -133,3 +141,63 @@ def get_city_recommendations(city_slug: str) -> dict[str, object] | None:
     }
 
     return recommendations.get(city_slug)
+
+
+def _should_use_supabase() -> bool:
+    return settings.app_env != "local"
+
+
+def _supabase_repository() -> "SupabaseCitiesRepository":
+    return SupabaseCitiesRepository(
+        supabase_url=settings.supabase_url,
+        service_role_key=settings.supabase_service_role_key,
+    )
+
+
+class SupabaseCitiesRepository:
+    def __init__(self, supabase_url: str, service_role_key: str) -> None:
+        self.base_url = f"{supabase_url.rstrip('/')}/rest/v1"
+        self.headers = {
+            "apikey": service_role_key,
+            "Authorization": f"Bearer {service_role_key}",
+            "Content-Type": "application/json",
+        }
+
+    def list_supported_cities(self) -> list[dict[str, str | bool]]:
+        rows = self._request(
+            "GET",
+            "/cities",
+            params={
+                "select": "slug,name_zh,country_region,is_supported,content_depth,tone_summary",
+                "is_supported": "eq.true",
+                "order": "slug.asc",
+            },
+        )
+        return [
+            {
+                "slug": row["slug"],
+                "nameZh": row["name_zh"],
+                "countryRegion": row["country_region"],
+                "isSupported": row["is_supported"],
+                "contentDepth": row["content_depth"],
+                "toneSummary": row.get("tone_summary") or "",
+            }
+            for row in rows
+        ]
+
+    def _request(
+        self,
+        method: str,
+        path: str,
+        *,
+        params: dict[str, str] | None = None,
+    ) -> object:
+        response = httpx.request(
+            method=method,
+            url=f"{self.base_url}{path}",
+            headers=self.headers,
+            params=params,
+            timeout=10.0,
+        )
+        response.raise_for_status()
+        return response.json()
