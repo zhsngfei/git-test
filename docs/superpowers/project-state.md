@@ -494,7 +494,7 @@
 
 提交：
 
-- 待提交
+- `41fafec feat: add supabase city recommendations repository`
 
 ## 最近验证结果
 
