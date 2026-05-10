@@ -560,7 +560,40 @@
 
 - `ea9975b feat: add content import dry run report`
 
+### Task 24: 内容导入严格 dry-run 校验
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/content_import/validator.py`
+- `weizhi-app/backend/tests/test_content_import_validator.py`
+- `weizhi-app/backend/tests/fixtures/content_import/invalid_values/cities.csv`
+- `weizhi-app/backend/tests/fixtures/content_import/invalid_values/works.csv`
+- `weizhi-app/backend/tests/fixtures/content_import/invalid_values/places.csv`
+- `weizhi-app/backend/tests/fixtures/content_import/invalid_values/work_city_relations.csv`
+- `weizhi-app/backend/tests/fixtures/content_import/invalid_values/work_place_relations.csv`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- dry-run 报告现在会校验必填字段是否为空。
+- dry-run 报告现在会校验 `content_depth`、`is_supported`、`work_type`、`review_status` 等枚举值是否合法。
+- dry-run 报告现在会校验 `cities`、`works`、`places` 文件内 slug 是否重复。
+- dry-run 报告现在会校验 `places.city_slug`、`work_city_relations` 和 `work_place_relations` 的关系引用是否能在同一批 CSV 中找到。
+- 新增固定非法数据夹具，避免测试写临时目录，也为后续 upsert 前置校验提供回归样例。
+- 本切片仍不写入 Supabase，不需要真实 Supabase 密钥；真实 upsert 执行层是后续切片。
+
+提交：
+
+- `db3cd30 feat: validate content import dry run data`
+
 ## 最近验证结果
+
+Task 24 内容导入严格 dry-run 校验验证：
+
+- 后端局部测试：`tests/test_content_import_validator.py`，`4 passed in 0.04s`
+- 后端完整测试：`39 passed in 0.92s`
+- 本切片未修改前端代码，因此未重复运行前端 lint/type check。
 
 Task 23 内容导入 dry-run 校验报告验证：
 
@@ -658,9 +691,8 @@ netstat -ano | findstr ":8000"
 
 当前内容读取主链路已经具备非本地 Supabase REST 边界，下一阶段建议补齐内容导入执行闭环：
 
-1. 为内容模板增加枚举值、空值、slug 唯一性和关系引用 dry-run 校验。
-2. 增加内容导入 upsert 执行层，将 CSV 按顺序写入 Supabase，并把 slug 解析为 uuid。
-3. 获取并填写真实 Supabase 项目环境变量。
-4. 在 Supabase 执行 schema，并验证邮箱 OTP 登录、内容读取和收藏写入。
-5. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
-6. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。
+1. 增加内容导入 upsert 执行层，将 CSV 按顺序写入 Supabase，并把 slug 解析为 uuid。
+2. 获取并填写真实 Supabase 项目环境变量。
+3. 在 Supabase 执行 schema，并验证邮箱 OTP 登录、内容读取和收藏写入。
+4. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
+5. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。
