@@ -2,12 +2,42 @@ import csv
 from pathlib import Path
 from typing import Protocol
 
+import httpx
+
 from app.features.content_import.validator import ImportValidationReport, validate_import_directory
 
 
 class ContentImportClient(Protocol):
     def upsert(self, table: str, rows: list[dict[str, object]]) -> list[dict[str, object]]:
         pass
+
+
+class SupabaseContentImportClient:
+    def __init__(self, supabase_url: str, service_role_key: str) -> None:
+        self.base_url = f"{supabase_url.rstrip('/')}/rest/v1"
+        self.headers = {
+            "apikey": service_role_key,
+            "Authorization": f"Bearer {service_role_key}",
+            "Content-Type": "application/json",
+        }
+
+    def upsert(self, table: str, rows: list[dict[str, object]]) -> list[dict[str, object]]:
+        if not rows:
+            return []
+
+        response = httpx.request(
+            method="POST",
+            url=f"{self.base_url}/{table}",
+            headers={
+                **self.headers,
+                "Prefer": "resolution=merge-duplicates,return=representation",
+            },
+            params={"on_conflict": _on_conflict_for_table(table)},
+            json=rows,
+            timeout=10.0,
+        )
+        response.raise_for_status()
+        return response.json()
 
 
 class SupabaseContentImporter:
@@ -143,3 +173,14 @@ def _optional_value(row: dict[str, str], key: str) -> str | None:
 
 def _boolean_value(row: dict[str, str], key: str) -> bool:
     return _value(row, key).lower() == "true"
+
+
+def _on_conflict_for_table(table: str) -> str:
+    if table in {"cities", "works", "places"}:
+        return "slug"
+    if table == "work_city_relations":
+        return "work_id,city_id"
+    if table == "work_place_relations":
+        return "work_id,place_id"
+
+    raise ValueError(f"Unsupported import table: {table}")

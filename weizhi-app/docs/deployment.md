@@ -145,7 +145,7 @@ alter table collections
 - 非本地环境下地点详情 `GET /api/places/{place_slug}` 会从 Supabase REST 聚合读取 `places`、`cities`、`work_place_relations`、`works`；本地环境仍使用 seed 数据。
 - 非本地环境下收藏仓储会使用 Supabase REST 写入 `collections` 表；本地测试仍使用内存仓储。
 - 内容模板已有结构化 dry-run 校验报告，可检查模板文件数量、行数、缺失列、非法枚举、必填空值、重复 slug 和关系引用缺失。
-- 内容导入已有可测试的 upsert 执行骨架，会按 `cities`、`works`、`places`、`work_city_relations`、`work_place_relations` 顺序写入，并把 slug 解析为 uuid；真实 Supabase HTTP client / CLI 和真实 smoke test 仍待补齐。
+- 内容导入已有可测试的 upsert 执行骨架和 Supabase REST HTTP client / CLI，会按 `cities`、`works`、`places`、`work_city_relations`、`work_place_relations` 顺序写入，并把 slug 解析为 uuid；真实 smoke test 仍待补齐。
 - 推荐 provider 已保留 `mimoaiapi` 边界，但还没有调用真实外部服务。
 - UI/UX 视觉细调已暂时搁置，后续会在功能闭环稳定后进入专项微调。
 - 真实 Supabase smoke test 还未执行，因为项目 URL、前端公开 key、后端 service role key 和 JWT secret 尚未提供。

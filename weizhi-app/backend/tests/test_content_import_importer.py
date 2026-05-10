@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app.features.content_import.importer import SupabaseContentImporter
+from app.features.content_import.importer import SupabaseContentImportClient, SupabaseContentImporter
 
 
 class FakeSupabaseContentClient:
@@ -74,3 +74,76 @@ def test_importer_refuses_to_upsert_invalid_directory() -> None:
     assert result.is_ready is False
     assert result.total_rows == 6
     assert client.calls == []
+
+
+class FakeResponse:
+    status_code = 200
+
+    def __init__(self, payload: object) -> None:
+        self.payload = payload
+
+    def raise_for_status(self) -> None:
+        return None
+
+    def json(self) -> object:
+        return self.payload
+
+
+def test_supabase_content_import_client_upserts_with_service_role_headers(monkeypatch) -> None:
+    requests: list[dict[str, object]] = []
+
+    def fake_request(**kwargs):
+        requests.append(kwargs)
+        return FakeResponse(
+            [
+                {
+                    "id": "city-kyoto",
+                    "slug": "kyoto",
+                }
+            ]
+        )
+
+    monkeypatch.setattr("app.features.content_import.importer.httpx.request", fake_request)
+    client = SupabaseContentImportClient(
+        supabase_url="https://project.supabase.co",
+        service_role_key="service-role",
+    )
+
+    rows = client.upsert(
+        "cities",
+        [
+            {
+                "slug": "kyoto",
+                "name_zh": "京都",
+            }
+        ],
+    )
+
+    assert rows == [
+        {
+            "id": "city-kyoto",
+            "slug": "kyoto",
+        }
+    ]
+    assert requests == [
+        {
+            "method": "POST",
+            "url": "https://project.supabase.co/rest/v1/cities",
+            "headers": {
+                "apikey": "service-role",
+                "Authorization": "Bearer service-role",
+                "Content-Type": "application/json",
+                "Prefer": "resolution=merge-duplicates,return=representation",
+            },
+            "params": {
+                "on_conflict": "slug",
+            },
+            "json": [
+                {
+                    "slug": "kyoto",
+                    "name_zh": "京都",
+                }
+            ],
+            "timeout": 10.0,
+        }
+    ]
