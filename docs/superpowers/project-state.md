@@ -538,7 +538,35 @@
 
 - `793bcaf feat: add supabase place detail repository`
 
+### Task 23: 内容导入 dry-run 校验报告
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/content_import/validator.py`
+- `weizhi-app/backend/tests/test_content_import_validator.py`
+- `weizhi-app/backend/tests/fixtures/content_import/incomplete/cities.csv`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- 新增 `CsvValidationResult` 和 `ImportValidationReport`，用于表达单个 CSV 和整批内容模板的 dry-run 校验结果。
+- 新增 `validate_import_directory(directory)`，可汇总模板文件数量、总行数、缺失列和整体是否具备导入前基础条件。
+- 保留 `validate_csv_columns(path)`，兼容已有单文件列校验测试。
+- 新增固定测试夹具 `tests/fixtures/content_import/incomplete/cities.csv`，避免 pytest 在 Windows 临时目录权限异常时卡死。
+- 本切片仍不写入 Supabase，不需要真实 Supabase 密钥；真实 upsert 执行层是后续切片。
+
+提交：
+
+- `ea9975b feat: add content import dry run report`
+
 ## 最近验证结果
+
+Task 23 内容导入 dry-run 校验报告验证：
+
+- 后端局部测试：`tests/test_content_import_validator.py`，`3 passed in 0.03s`
+- 后端完整测试：`38 passed in 0.90s`
+- 本切片未修改前端代码，因此未重复运行前端 lint/type check。
 
 Task 22 地点详情 Supabase 聚合读取边界验证：
 
@@ -628,10 +656,11 @@ netstat -ano | findstr ":8000"
 
 ## 下一步建议
 
-当前内容读取主链路已经具备非本地 Supabase REST 边界，下一阶段建议进入真实联调准备：
+当前内容读取主链路已经具备非本地 Supabase REST 边界，下一阶段建议补齐内容导入执行闭环：
 
-1. 获取并填写真实 Supabase 项目环境变量。
-2. 在 Supabase 执行 schema，并验证邮箱 OTP 登录、内容读取和收藏写入。
-3. 准备第一批真实内容数据并通过导入流程进入 Supabase。
-4. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
-5. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。
+1. 为内容模板增加枚举值、空值、slug 唯一性和关系引用 dry-run 校验。
+2. 增加内容导入 upsert 执行层，将 CSV 按顺序写入 Supabase，并把 slug 解析为 uuid。
+3. 获取并填写真实 Supabase 项目环境变量。
+4. 在 Supabase 执行 schema，并验证邮箱 OTP 登录、内容读取和收藏写入。
+5. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
+6. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。
