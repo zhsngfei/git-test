@@ -517,7 +517,34 @@
 
 - `e6797a8 feat: add supabase work detail repository`
 
+### Task 22: 地点详情 Supabase 聚合读取边界
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/places/repository.py`
+- `weizhi-app/backend/tests/test_places_repository.py`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- `GET /api/places/{place_slug}` 在 `APP_ENV=local` 时继续使用本地 seed，方便无密钥开发。
+- 非 `local` 环境会通过 Supabase REST 读取 `places`、`cities`、`work_place_relations`、`works` 并聚合成现有前端契约。
+- 聚合读取只纳入 `review_status in (reviewed,published)` 的地点、作品地点关系和作品，避免草稿内容进入地点详情页。
+- API 响应继续使用前端已有字段：`nameZh`、`summary`、`meaning`、`relatedWorks`，并继续用 slug 作为前端可见 `id`。
+- 新增仓储测试，用 monkeypatch 模拟 Supabase REST 响应，验证请求参数和响应字段映射，不需要真实 Supabase 配置。
+
+提交：
+
+- `793bcaf feat: add supabase place detail repository`
+
 ## 最近验证结果
+
+Task 22 地点详情 Supabase 聚合读取边界验证：
+
+- 后端局部测试：`tests/test_places_repository.py`，`2 passed in 0.29s`
+- 后端完整测试：`36 passed in 0.90s`
+- 本切片未修改前端代码，因此未重复运行前端 lint/type check。
 
 Task 21 作品详情 Supabase 聚合读取边界验证：
 
@@ -601,10 +628,10 @@ netstat -ano | findstr ":8000"
 
 ## 下一步建议
 
-当前建议继续推进真实数据读取边界，下一片优先做地点详情：
+当前内容读取主链路已经具备非本地 Supabase REST 边界，下一阶段建议进入真实联调准备：
 
-1. 将地点详情 `GET /api/places/{place_slug}` 从 seed/local 推进到 Supabase REST 聚合读取。
-2. 获取并填写真实 Supabase 项目环境变量。
-3. 在 Supabase 执行 schema，并验证邮箱 OTP 登录、内容读取和收藏写入。
+1. 获取并填写真实 Supabase 项目环境变量。
+2. 在 Supabase 执行 schema，并验证邮箱 OTP 登录、内容读取和收藏写入。
+3. 准备第一批真实内容数据并通过导入流程进入 Supabase。
 4. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
 5. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。
