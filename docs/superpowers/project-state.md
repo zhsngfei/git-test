@@ -608,7 +608,37 @@
 
 - `6f6f7ad feat: add content import upsert flow`
 
+### Task 26: 内容导入 Supabase HTTP client / CLI
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/content_import/importer.py`
+- `weizhi-app/backend/app/features/content_import/cli.py`
+- `weizhi-app/backend/tests/test_content_import_importer.py`
+- `weizhi-app/backend/tests/test_content_import_cli.py`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- 新增 `SupabaseContentImportClient`，通过 Supabase REST `POST /rest/v1/{table}` 执行 upsert。
+- upsert 请求使用后端 service role header，并带 `Prefer: resolution=merge-duplicates,return=representation`。
+- 主表 `cities`、`works`、`places` 使用 `on_conflict=slug`；关系表使用 `work_id,city_id` 或 `work_id,place_id`。
+- 新增 CLI 入口 `python -m app.features.content_import.cli --directory ... --supabase-url ... --service-role-key ...`。
+- CLI 会显式接收 Supabase URL 和 service role key，不把 secret 写入仓库文件。
+- 本切片使用 mock HTTP / mock importer 验证请求形状和 CLI 调用；真实 Supabase smoke test 仍需用户提供真实配置后执行。
+
+提交：
+
+- `c8d4a4e feat: add content import supabase client cli`
+
 ## 最近验证结果
+
+Task 26 内容导入 Supabase HTTP client / CLI 验证：
+
+- 后端局部测试：`tests/test_content_import_importer.py tests/test_content_import_cli.py`，`4 passed in 0.14s`
+- 后端完整测试：`43 passed in 0.97s`
+- 本切片未修改前端代码，因此未重复运行前端 lint/type check。
 
 Task 25 内容导入 upsert 执行骨架验证：
 
@@ -718,8 +748,8 @@ netstat -ano | findstr ":8000"
 
 当前内容读取主链路已经具备非本地 Supabase REST 边界，下一阶段建议补齐内容导入执行闭环：
 
-1. 增加真实 Supabase content import HTTP client / CLI，让当前 importer 可以在提供密钥后执行真实写入。
-2. 获取并填写真实 Supabase 项目环境变量。
-3. 在 Supabase 执行 schema，并验证邮箱 OTP 登录、内容读取和收藏写入。
+1. 获取并填写真实 Supabase 项目环境变量。
+2. 在 Supabase 执行 schema，并用内容导入 CLI 做真实 CSV 写入 smoke test。
+3. 验证邮箱 OTP 登录、内容读取和收藏写入。
 4. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
 5. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。
