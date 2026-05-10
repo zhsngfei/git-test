@@ -587,7 +587,34 @@
 
 - `db3cd30 feat: validate content import dry run data`
 
+### Task 25: 内容导入 upsert 执行骨架
+
+已创建/修改：
+
+- `weizhi-app/backend/app/features/content_import/importer.py`
+- `weizhi-app/backend/tests/test_content_import_importer.py`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- 新增 `SupabaseContentImporter`，先执行 dry-run；如果校验失败，不会写入任何表。
+- dry-run 通过后，按 `cities`、`works`、`places`、`work_city_relations`、`work_place_relations` 顺序调用 upsert。
+- importer 会把 `city_slug`、`work_slug`、`place_slug` 解析为前序 upsert 返回的 uuid，再写入地点和两张关系表。
+- 新增 mock client 测试，验证写入顺序、字段映射、布尔值转换、空值转换和关系 uuid 解析。
+- 本切片仍不连接真实 Supabase，不需要真实 Supabase 密钥；真实 Supabase HTTP client / CLI 和真实 smoke test 是后续切片。
+
+提交：
+
+- `6f6f7ad feat: add content import upsert flow`
+
 ## 最近验证结果
+
+Task 25 内容导入 upsert 执行骨架验证：
+
+- 后端局部测试：`tests/test_content_import_importer.py`，`2 passed in 0.04s`
+- 后端完整测试：`41 passed in 0.95s`
+- 本切片未修改前端代码，因此未重复运行前端 lint/type check。
 
 Task 24 内容导入严格 dry-run 校验验证：
 
@@ -691,7 +718,7 @@ netstat -ano | findstr ":8000"
 
 当前内容读取主链路已经具备非本地 Supabase REST 边界，下一阶段建议补齐内容导入执行闭环：
 
-1. 增加内容导入 upsert 执行层，将 CSV 按顺序写入 Supabase，并把 slug 解析为 uuid。
+1. 增加真实 Supabase content import HTTP client / CLI，让当前 importer 可以在提供密钥后执行真实写入。
 2. 获取并填写真实 Supabase 项目环境变量。
 3. 在 Supabase 执行 schema，并验证邮箱 OTP 登录、内容读取和收藏写入。
 4. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
