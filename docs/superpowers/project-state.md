@@ -650,7 +650,29 @@
 - 真实 Supabase REST 非写入连通性已验证到项目；当前返回 `PGRST205`，表示 `public.cities` 表尚未创建，需要先执行 schema。
 - 尚未执行内容导入 CLI，因为那会向真实 Supabase 写入数据，需要用户确认后再做。
 
+### Task 28: 真实 Supabase schema 与内容导入 smoke test
+
+已创建/修改：
+
+- `docs/superpowers/project-state.md`
+- `weizhi-app/docs/deployment.md`
+
+说明：
+
+- 用户已在 Supabase SQL Editor 执行 `weizhi-app/backend/app/db/schema.sql`，执行结果为 `Success. No rows returned`。
+- 非写入表检查确认 `cities` 表可读，执行后初始为 0 行。
+- 已将 `weizhi-app/content/templates` 中的内容模板导入真实 Supabase。
+- 导入后只读计数确认：`cities=2`、`works=2`、`places=2`、`work_city_relations=2`、`work_place_relations=2`。
+- 后端 Supabase 仓储读取 smoke test 已确认：城市列表、东京推荐、京都推荐、作品详情、地点详情均可从真实 Supabase 读取。
+- 当前模板内容中东京只有作品，没有地点；京都包含 2 个地点。这是模板内容范围，不是导入失败。
+
 ## 最近验证结果
+
+Task 28 真实 Supabase schema 与内容导入 smoke test：
+
+- Supabase 表存在检查：`GET /rest/v1/cities?select=id,slug&limit=1` 返回 `STATUS=200`，初始 `ROWS=0`
+- 内容导入后表计数：`cities=2`、`works=2`、`places=2`、`work_city_relations=2`、`work_place_relations=2`
+- 后端真实读取 smoke：`CITIES=2`，`TOKYO_WORKS=1`，`KYOTO_WORKS=1`，`KYOTO_PLACES=2`，`WORK_FOUND=True`，`WORK_PLACES=2`，`PLACE_FOUND=True`，`PLACE_WORKS=1`
 
 Task 27 Supabase 配置烟测前置修正验证：
 

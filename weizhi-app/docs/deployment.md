@@ -150,5 +150,6 @@ alter table collections
 - UI/UX 视觉细调已暂时搁置，后续会在功能闭环稳定后进入专项微调。
 - Supabase 项目 URL、前端公开 key、后端 service role key 和 JWT secret 已支持通过本地 `.env` / `.env.local` 提供；本地 secret 文件被 Git 忽略，不能提交。
 - `APP_ENV=staging` 可先使用真实 Supabase 配置和占位 `mimoaiapi` 做联调；`APP_ENV=production` 仍禁止任何 Supabase 或 mimoai 占位值。
-- 真实 Supabase 非写入连通性已验证到项目；当前项目尚未创建 `public.cities` 表，需要先执行 `weizhi-app/backend/app/db/schema.sql`，再做内容导入 smoke test。
+- 真实 Supabase schema 已在项目中执行成功，内容模板已完成一次真实导入 smoke test；当前内容表计数为 `cities=2`、`works=2`、`places=2`、`work_city_relations=2`、`work_place_relations=2`。
+- 当前模板内容中东京只有作品，没有地点；京都包含 2 个地点。后续补正式内容时继续通过 CSV 模板和导入 CLI 进入 Supabase。
 - 无真实 Supabase 配置时，本地开发环境可以通过 `POST /api/dev/auth/session` 创建本地会话，用于验证登录到收藏闭环；该路径只服务本地开发，不代表生产登录完成。
