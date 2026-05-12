@@ -27,14 +27,19 @@ class Settings(BaseSettings):
         if self.app_env == "local":
             return self
 
-        production_values = {
+        supabase_values = {
             self.supabase_url,
             self.supabase_service_role_key,
             self.supabase_jwt_secret,
+        }
+        if supabase_values & PLACEHOLDER_VALUES:
+            raise ValueError("Non-local settings must not use Supabase placeholder values")
+
+        production_values = {
             self.mimoai_api_base_url,
             self.mimoai_api_key,
         }
-        if production_values & PLACEHOLDER_VALUES:
+        if self.app_env == "production" and production_values & PLACEHOLDER_VALUES:
             raise ValueError("Production settings must not use placeholder values")
 
         return self

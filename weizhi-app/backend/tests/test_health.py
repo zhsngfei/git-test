@@ -52,3 +52,26 @@ def test_cors_allows_configured_frontend_origin() -> None:
 def test_non_local_settings_reject_placeholder_secrets() -> None:
     with pytest.raises(ValidationError):
         Settings(app_env="production")
+
+
+def test_staging_settings_allow_mimoai_placeholders_when_supabase_is_configured() -> None:
+    settings = Settings(
+        app_env="staging",
+        supabase_url="https://project.supabase.co",
+        supabase_service_role_key="service-role-key",
+        supabase_jwt_secret="x" * 32,
+    )
+
+    assert settings.supabase_auth_status() == "configured"
+    assert settings.supabase_collections_storage() == "supabase_rest"
+    assert settings.mimoai_status() == "placeholder"
+
+
+def test_staging_settings_reject_supabase_placeholders() -> None:
+    with pytest.raises(ValidationError):
+        Settings(
+            app_env="staging",
+            supabase_url="https://project.supabase.co",
+            supabase_service_role_key="replace-with-service-role-key",
+            supabase_jwt_secret="x" * 32,
+        )

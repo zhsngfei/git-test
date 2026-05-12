@@ -148,5 +148,7 @@ alter table collections
 - 内容导入已有可测试的 upsert 执行骨架和 Supabase REST HTTP client / CLI，会按 `cities`、`works`、`places`、`work_city_relations`、`work_place_relations` 顺序写入，并把 slug 解析为 uuid；真实 smoke test 仍待补齐。
 - 推荐 provider 已保留 `mimoaiapi` 边界，但还没有调用真实外部服务。
 - UI/UX 视觉细调已暂时搁置，后续会在功能闭环稳定后进入专项微调。
-- 真实 Supabase smoke test 还未执行，因为项目 URL、前端公开 key、后端 service role key 和 JWT secret 尚未提供。
+- Supabase 项目 URL、前端公开 key、后端 service role key 和 JWT secret 已支持通过本地 `.env` / `.env.local` 提供；本地 secret 文件被 Git 忽略，不能提交。
+- `APP_ENV=staging` 可先使用真实 Supabase 配置和占位 `mimoaiapi` 做联调；`APP_ENV=production` 仍禁止任何 Supabase 或 mimoai 占位值。
+- 真实 Supabase 非写入连通性已验证到项目；当前项目尚未创建 `public.cities` 表，需要先执行 `weizhi-app/backend/app/db/schema.sql`，再做内容导入 smoke test。
 - 无真实 Supabase 配置时，本地开发环境可以通过 `POST /api/dev/auth/session` 创建本地会话，用于验证登录到收藏闭环；该路径只服务本地开发，不代表生产登录完成。

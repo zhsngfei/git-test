@@ -632,7 +632,32 @@
 
 - `c8d4a4e feat: add content import supabase client cli`
 
+### Task 27: Supabase 配置烟测前置修正
+
+已创建/修改：
+
+- `weizhi-app/backend/app/core/config.py`
+- `weizhi-app/backend/tests/conftest.py`
+- `weizhi-app/backend/tests/test_health.py`
+- `weizhi-app/docs/deployment.md`
+- `docs/superpowers/project-state.md`
+
+说明：
+
+- 已确认本地 `weizhi-app/backend/.env` 和 `weizhi-app/frontend/.env.local` 存在，且被 Git 忽略；检查过程未输出任何真实 secret。
+- 后端 `APP_ENV=staging` 现在允许 `mimoaiapi` 仍为占位值，用于先完成 Supabase 联调；`production` 仍禁止任何 Supabase 或 mimoai 占位值。
+- 后端 pytest 已通过 `tests/conftest.py` 固定测试环境变量，避免被开发者本机真实 `.env` 污染。
+- 真实 Supabase REST 非写入连通性已验证到项目；当前返回 `PGRST205`，表示 `public.cities` 表尚未创建，需要先执行 schema。
+- 尚未执行内容导入 CLI，因为那会向真实 Supabase 写入数据，需要用户确认后再做。
+
 ## 最近验证结果
+
+Task 27 Supabase 配置烟测前置修正验证：
+
+- 配置回归测试：`tests/test_health.py`，`6 passed in 0.55s`
+- 后端完整测试：`45 passed in 0.89s`
+- 真实 `.env` 配置加载：`CONFIG_LOAD=ok`，`APP_ENV=staging`，Supabase 状态为 `configured`，mimoai 状态为 `placeholder`
+- Supabase REST 非写入连通性：联网请求返回 `404 PGRST205`，鉴权和项目地址可达，但 `public.cities` 表尚未存在。
 
 Task 26 内容导入 Supabase HTTP client / CLI 验证：
 
@@ -748,8 +773,8 @@ netstat -ano | findstr ":8000"
 
 当前内容读取主链路已经具备非本地 Supabase REST 边界，下一阶段建议补齐内容导入执行闭环：
 
-1. 获取并填写真实 Supabase 项目环境变量。
-2. 在 Supabase 执行 schema，并用内容导入 CLI 做真实 CSV 写入 smoke test。
+1. 在 Supabase 执行 `weizhi-app/backend/app/db/schema.sql`，创建 `cities` 等真实表。
+2. 用户确认后，用内容导入 CLI 做真实 CSV 写入 smoke test。
 3. 验证邮箱 OTP 登录、内容读取和收藏写入。
 4. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
 5. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。
