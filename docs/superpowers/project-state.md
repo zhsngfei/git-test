@@ -830,3 +830,34 @@ netstat -ano | findstr ":8000"
 下一步：
 - 请在当前已登录页面重新点击“收藏”验证真实写入。
 - 如果仍失败，下一步重点检查后端返回状态和 Supabase Auth `/auth/v1/user` 校验响应，而不是再改前端 UI。
+
+## 2026-05-13 收藏同步问题二次修正记录
+
+问题：
+- 首次修复后，用户反馈收藏仍然失败。
+
+补充排查：
+- 已用真实 Supabase `collections` 表做写入后立即删除的 smoke test：`lost-in-translation` + `tokyo` 可正常写入和删除，说明数据库写入层不是当前失败点。
+- 后端 Supabase Auth 诊断请求可打到 Auth 服务，说明 key 本身不是完全不可用。
+- 新增测试复现：当 Supabase Auth `/auth/v1/user` 返回已验证 user object 但不包含 `role/aud` 字段时，后端仍会误判为无效 token。
+
+修复：
+- `weizhi-app/backend/app/features/auth/dependencies.py`
+  - 非本地环境下，只要 Supabase Auth 成功返回用户对象且包含有效 `id`，即视为已认证用户。
+  - 不再额外强制 `/auth/v1/user` 响应体必须带 `role=authenticated` 和 `aud=authenticated`，避免把 Supabase 已验证通过的 user object 误判为失败。
+- `weizhi-app/backend/tests/test_collections_api.py`
+  - 新增 `test_staging_auth_accepts_supabase_verified_user_without_role_claim`，覆盖 Supabase user object 字段差异。
+
+验证：
+- 新增红灯测试在旧实现下失败，失败原因为后端额外强制 `role/aud`。
+- 修复后新增测试通过。
+- 收藏相关测试：`python -m pytest tests/test_collections_api.py tests/test_collections_repository.py`，14 passed。
+- 后端全量测试：`python -m pytest`，47 passed。
+- 本地后端已重启，当前 PID 为 `11932`。
+- `GET http://127.0.0.1:8000/health` 返回 `status=ok`，`appEnv=staging`。
+- `GET http://127.0.0.1:8000/health/readiness` 返回 Supabase Auth `configured`、收藏存储 `supabase_rest`、mimoai `placeholder`。
+- `GET http://127.0.0.1:3000/collections` 返回 200。
+
+下一步：
+- 用户刷新当前页面后再次点击收藏验证。
+- 如果仍失败，下一步给前端收藏错误提示加入后端状态码/错误详情，避免继续只显示泛化失败文案。

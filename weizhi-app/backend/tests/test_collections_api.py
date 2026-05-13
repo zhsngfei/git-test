@@ -117,6 +117,23 @@ def test_staging_auth_validates_access_token_with_supabase_auth_server(monkeypat
     assert captured_headers["apikey"] == settings.supabase_service_role_key
 
 
+def test_staging_auth_accepts_supabase_verified_user_without_role_claim(monkeypatch) -> None:
+    monkeypatch.setattr(settings, "app_env", "staging")
+
+    def fake_get(url: str, *, headers: dict[str, str], timeout: float) -> httpx.Response:
+        return httpx.Response(
+            200,
+            request=httpx.Request("GET", url),
+            json={"id": "verified-user-id", "email": "reader@example.com"},
+        )
+
+    monkeypatch.setattr(auth_dependencies.httpx, "get", fake_get)
+
+    user = get_current_user(HTTPAuthorizationCredentials(scheme="Bearer", credentials="access-token"))
+
+    assert user.user_id == "verified-user-id"
+
+
 def test_local_dev_auth_token_can_access_collections_without_supabase_keys() -> None:
     client = TestClient(app)
 

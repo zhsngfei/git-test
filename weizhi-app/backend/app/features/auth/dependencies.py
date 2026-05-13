@@ -83,7 +83,4 @@ def _verify_supabase_access_token(access_token: str) -> AuthenticatedUser:
     if not isinstance(user_id, str) or not user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
-    if payload.get("role") != "authenticated" or payload.get("aud") != "authenticated":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-
     return AuthenticatedUser(user_id=user_id)
