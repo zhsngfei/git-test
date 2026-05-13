@@ -1,8 +1,11 @@
 from fastapi.testclient import TestClient
 import jwt
 from datetime import UTC, datetime, timedelta
-
+import httpx
 from app.core.config import settings
+from app.features.auth import dependencies as auth_dependencies
+from app.features.auth.dependencies import get_current_user
+from fastapi.security import HTTPAuthorizationCredentials
 from app.main import app
 
 
@@ -84,6 +87,34 @@ def test_collections_reject_token_with_wrong_role() -> None:
     )
 
     assert response.status_code == 401
+
+
+def test_staging_auth_validates_access_token_with_supabase_auth_server(monkeypatch) -> None:
+    monkeypatch.setattr(settings, "app_env", "staging")
+    token = "supabase-issued-access-token"
+    captured_headers: dict[str, str] = {}
+
+    def fake_get(url: str, *, headers: dict[str, str], timeout: float) -> httpx.Response:
+        captured_headers.update(headers)
+        assert url == f"{settings.supabase_url.rstrip('/')}/auth/v1/user"
+        assert timeout == 10.0
+        return httpx.Response(
+            200,
+            request=httpx.Request("GET", url),
+            json={
+                "id": "verified-user-id",
+                "aud": "authenticated",
+                "role": "authenticated",
+            },
+        )
+
+    monkeypatch.setattr(auth_dependencies.httpx, "get", fake_get)
+
+    user = get_current_user(HTTPAuthorizationCredentials(scheme="Bearer", credentials=token))
+
+    assert user.user_id == "verified-user-id"
+    assert captured_headers["Authorization"] == f"Bearer {token}"
+    assert captured_headers["apikey"] == settings.supabase_service_role_key
 
 
 def test_local_dev_auth_token_can_access_collections_without_supabase_keys() -> None:

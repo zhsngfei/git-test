@@ -800,3 +800,33 @@ netstat -ano | findstr ":8000"
 3. 验证邮箱 OTP 登录、内容读取和收藏写入。
 4. 接入真实 `mimoaiapi`，保留“只基于已核验事实推荐”的约束。
 5. 在功能闭环稳定后，再进入 UI/UX 视觉专项微调。
+
+## 2026-05-13 收藏同步问题修复记录
+
+问题：
+- 用户在 `http://127.0.0.1:3000/works/lost-in-translation` 登录后点击收藏，前端提示“收藏暂时没有同步成功，请稍后再试。”
+
+根因：
+- 后端在非本地环境仍使用旧 Supabase JWT secret + `HS256` 本地解码用户 access token。
+- 当前 Supabase 项目已经使用新的 JWT Signing Keys，用户登录成功后得到的 access token 不能可靠地由旧本地解码逻辑验证，导致收藏接口鉴权失败。
+
+修复：
+- `weizhi-app/backend/app/features/auth/dependencies.py`
+  - `APP_ENV=local` 继续使用本地 JWT 解码，保证无密钥开发链路不受影响。
+  - 非 `local` 环境改为调用 Supabase Auth `GET /auth/v1/user` 校验用户 access token，并从返回用户对象中读取 `id`。
+- `weizhi-app/backend/tests/test_collections_api.py`
+  - 新增真实环境鉴权路径测试，确认后端会把 Bearer access token 交给 Supabase Auth 校验。
+
+验证：
+- 红灯测试：新增测试在旧实现下失败，失败原因为后端仍尝试本地解码 access token。
+- 绿灯测试：`python -m pytest tests/test_collections_api.py::test_staging_auth_validates_access_token_with_supabase_auth_server` 通过。
+- 收藏相关测试：`python -m pytest tests/test_collections_api.py tests/test_collections_repository.py`，13 passed。
+- 后端全量测试：`python -m pytest`，46 passed。
+- 本地后端已重启，当前 PID 为 `11436`。
+- `GET http://127.0.0.1:8000/health` 返回 `status=ok`，`appEnv=staging`。
+- `GET http://127.0.0.1:8000/health/readiness` 返回 Supabase Auth `configured`、收藏存储 `supabase_rest`、mimoai `placeholder`。
+- `GET http://127.0.0.1:3000/works/lost-in-translation` 返回 200。
+
+下一步：
+- 请在当前已登录页面重新点击“收藏”验证真实写入。
+- 如果仍失败，下一步重点检查后端返回状态和 Supabase Auth `/auth/v1/user` 校验响应，而不是再改前端 UI。
