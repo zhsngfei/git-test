@@ -49,6 +49,15 @@ def test_cors_allows_configured_frontend_origin() -> None:
     assert response.headers["access-control-allow-origin"] == "http://localhost:3000"
 
 
+def test_settings_parse_multiple_frontend_origins() -> None:
+    settings = Settings(frontend_origin="http://localhost:3000, http://127.0.0.1:3000")
+
+    assert settings.frontend_origins() == [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
+
 def test_non_local_settings_reject_placeholder_secrets() -> None:
     with pytest.raises(ValidationError):
         Settings(app_env="production")

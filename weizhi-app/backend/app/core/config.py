@@ -51,6 +51,9 @@ class Settings(BaseSettings):
         }
         return "placeholder" if required_values & PLACEHOLDER_VALUES else "configured"
 
+    def frontend_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.frontend_origin.split(",") if origin.strip()]
+
     def supabase_collections_storage(self) -> str:
         if self.app_env == "local":
             return "memory"

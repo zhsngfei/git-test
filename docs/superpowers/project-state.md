@@ -861,3 +861,37 @@ netstat -ano | findstr ":8000"
 下一步：
 - 用户刷新当前页面后再次点击收藏验证。
 - 如果仍失败，下一步给前端收藏错误提示加入后端状态码/错误详情，避免继续只显示泛化失败文案。
+
+## 2026-05-13 收藏请求未到后端的 CORS 修复记录
+
+问题：
+- 用户在 `http://127.0.0.1:3000/collections` 点击收藏后，真实 Supabase `collections` 表仍为 0 条。
+- 用户要求确认前端请求是否发出、后端接口是否接收。
+
+根因：
+- 前端页面当前运行在 `http://127.0.0.1:3000`。
+- 前端 API 配置为 `http://localhost:8000`，浏览器会把 `127.0.0.1` 和 `localhost` 视为不同 origin。
+- 后端 CORS 只允许 `FRONTEND_ORIGIN=http://localhost:3000`，导致来自 `http://127.0.0.1:3000` 的浏览器预检请求被拒绝。
+- 证据：修复前用 `Origin=http://127.0.0.1:3000` 发送 `OPTIONS /api/collections`，后端返回 `Disallowed CORS origin`；同样请求用 `Origin=http://localhost:3000` 返回 200。
+
+修复：
+- `weizhi-app/backend/app/core/config.py`
+  - 新增 `frontend_origins()`，支持 `FRONTEND_ORIGIN` 用逗号分隔多个允许来源。
+- `weizhi-app/backend/app/main.py`
+  - CORS `allow_origins` 改为使用 `settings.frontend_origins()`。
+- `weizhi-app/backend/.env.example`
+  - 示例配置改为 `http://localhost:3000,http://127.0.0.1:3000`。
+- 本机真实 `weizhi-app/backend/.env`
+  - 已同步加入 `http://127.0.0.1:3000`；该文件包含 secret，不提交 Git。
+
+验证：
+- 新增测试 `test_settings_parse_multiple_frontend_origins`，先红后绿。
+- 后端全量测试：`python -m pytest`，48 passed。
+- 后端已重启，当前 PID 为 `20164`。
+- 修复后 `Origin=http://127.0.0.1:3000` 的 `OPTIONS /api/collections` 返回 200。
+- 修复后 `Origin=http://localhost:3000` 的 `OPTIONS /api/collections` 返回 200。
+- `GET http://127.0.0.1:8000/health` 返回 `status=ok`，`appEnv=staging`。
+
+下一步：
+- 用户在当前 `127.0.0.1:3000` 页面再次点击收藏。
+- 再读真实 Supabase `collections` 表，确认收藏是否写入。
